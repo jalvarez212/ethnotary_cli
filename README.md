@@ -20,6 +20,10 @@ The result: **autonomous capital, with governance.**
 
 ## Architecture
 
+Ethnotary supports both fully autonomous agent committees and **Human-in-the-Loop (HITL)** governance models, enabling AI agents and human co-owners to share multisig contracts with threshold enforcement.
+
+### 1. Autonomous Agent Committee Architecture
+
 ```mermaid
 graph TD
   subgraph Agents["🤖 Agent Committee"]
@@ -54,6 +58,92 @@ graph TD
   MS --> S
 ```
 
+### 2. Hybrid Governance Architecture (Human-in-the-Loop & Multi-Human)
+
+```mermaid
+graph TD
+  subgraph Committee["🏛️ Multisig Governance & Signer Set"]
+    subgraph Agents["🤖 AI Agent Committee"]
+      R["🔍 Research Agent"]
+      K["🛡️ Risk Agent"]
+      T["💰 Treasury Agent"]
+      X["⚡ Executor Agent"]
+    end
+
+    subgraph Humans["👤 Human-in-the-Loop (HITL)"]
+      H1["👤 Human Supervisor<br/>(Single Human Oversight)"]
+      H2["👥 Human Co-Owners / Council<br/>(Multi-Human Governance)"]
+    end
+  end
+
+  subgraph Coord["🧠 Ethnotary Coordination Layer"]
+    P["Proposal Engine"]
+    C["Consensus Tracker"]
+    N["📲 Notification Gateway<br/>(Telegram / WhatsApp / Webhooks)"]
+    A["Audit Trail"]
+  end
+
+  subgraph UI["💻 Approval Interfaces"]
+    W["🌐 ethnotary.io Web UI"]
+    CLI["⌨️ Ethnotary CLI"]
+  end
+
+  CW["💵 Circle Agent Wallets<br/>per-agent USDC"]
+  MS["🏛️ MultiSigAccount Contract<br/>threshold-enforced"]
+
+  H["Hedera Testnet"]
+  B["Base Sepolia"]
+  S["Sepolia"]
+
+  R --> P
+  K --> C
+  T --> C
+  X --> P
+  
+  P --> C
+  C --> N
+  N -- Notification Link --> H1
+  N -- Notification Link --> H2
+  
+  H1 -- Review & Sign --> W
+  H2 -- Review & Sign --> CLI
+  
+  Agents -- Sign / Confirm --> MS
+  W -- On-Chain Confirm --> MS
+  CLI -- On-Chain Confirm --> MS
+
+  CW -- USDC Funding --> MS
+  C --> A
+  MS --> H
+  MS --> B
+  MS --> S
+```
+
+#### Governance Topologies
+
+```mermaid
+graph LR
+  subgraph Mode1["1️⃣ Single Human in the Loop"]
+    direction TB
+    A1["🤖 AI Agent"] -->|Submits Tx| P1["🧠 Ethnotary"]
+    P1 -->|Notify Link| H1["👤 Human Supervisor"]
+    H1 -->|Confirm 2/2| M1["🏛️ MultiSig"]
+  end
+
+  subgraph Mode2["2️⃣ Multi-Human Governance"]
+    direction TB
+    A2["🤖 Agent Committee"] -->|Pre-approve| P2["🧠 Ethnotary"]
+    P2 -->|Notify Board| H2["👥 Human Co-Owners"]
+    H2 -->|Confirm 3/5| M2["🏛️ MultiSig"]
+  end
+
+  subgraph Mode3["3️⃣ Autonomous Agents"]
+    direction TB
+    A3["🤖 Agent Committee"] -->|Consensus 3/3| P3["🧠 Ethnotary"]
+    P3 -->|Execute| M3["🏛️ MultiSig"]
+  end
+```
+
 > Full diagram + flow walkthrough → [`docs/architecture.md`](./docs/architecture.md)
 
 ## Run the demo in 60 seconds
@@ -82,10 +172,104 @@ You'll see four agents convene, debate, vote 3/3 to approve, and settle a transa
 
 ## Example Use Cases
 
+Ethnotary powers governed treasury workflows across autonomous agent-to-agent networks, single-human oversight, and multi-human enterprise governance.
+
 - **Prediction market treasury** — agents detect mispriced odds, vote to allocate, settle on-chain
 - **AI compute marketplace** — agents pay per query / per inference under risk-budgeted spending caps
 - **DAO treasury automation** — committee of specialized agents replaces slow multi-sig council reviews
 - **Agent-to-agent payments** — settled through governed treasuries instead of trusted single wallets
+
+### 1. Autonomous Agent-to-Agent Treasury Flow
+**Use Case:** Autonomous agents collaborate off-chain (Research, Risk, Treasury) to evaluate opportunities and vote. Upon reaching consensus, the transaction is executed on-chain without human intervention.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Research as 🔍 Research Agent
+    participant Risk as 🛡️ Risk Agent
+    participant Treasury as 💰 Treasury Agent
+    participant Executor as ⚡ Executor Agent
+    participant Coord as 🧠 Ethnotary Coordination Layer
+    participant MultiSig as 🏛️ MultiSig Contract
+
+    Research->>Coord: Submit proposal (e.g. Allocate capital)
+    Risk->>Coord: Score exposure & Vote YES
+    Treasury->>Coord: Check allocation & Vote YES
+    Coord->>Coord: Threshold met (3/3 Consensus)
+    Executor->>MultiSig: Submit & execute transaction on-chain
+    MultiSig-->>Coord: Return transaction hash & write audit trail
+```
+
+### 2. Human-in-the-Loop Oversight Flow (Single Human + AI Agent)
+**Use Case:** High-value treasury operations or policy-restricted spending where an AI agent proposes transactions, but a human supervisor receives a notification via WhatsApp, Telegram, or Web UI to review reasoning and confirm on-chain.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as 🤖 AI Agent
+    participant Ethnotary as 🧠 Ethnotary Layer
+    participant Human as 👤 Human Supervisor (Telegram / Web UI)
+    participant MultiSig as 🏛️ MultiSig Contract
+    
+    Agent->>Ethnotary: 1. Submit transaction proposal
+    Ethnotary->>MultiSig: 2. Submit transaction on-chain (Confirmation 1/2)
+    Ethnotary->>Human: 3. Dispatch approval notification & web link
+    Note over Human: Reviews prompt logs,<br/>confidence & payload
+    Human->>MultiSig: 4. Confirm transaction on ethnotary.io (Confirmation 2/2)
+    Ethnotary->>MultiSig: 5. Execute transaction cross-chain
+```
+
+### 3. Multi-Human Governance Council Flow (Multiple Humans + AI Agents)
+**Use Case:** Enterprise or DAO treasuries governed by a multi-sig threshold (e.g., 3 of 5) shared between AI research/risk agents and multiple human board members. Specialized AI agents pre-approve proposals, while human co-owners receive mobile notifications to review and cast final deciding votes.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant AI1 as 🔍 Research Agent
+    participant AI2 as 🛡️ Risk Agent
+    participant Ethnotary as 🧠 Ethnotary Consensus Engine
+    participant HumanA as 👤 Human Admin A (CFO)
+    participant HumanB as 👤 Human Admin B (Security Lead)
+    participant MultiSig as 🏛️ MultiSig Account (3 of 5)
+
+    AI1->>Ethnotary: Propose capital allocation change
+    AI2->>Ethnotary: Evaluate risk & vote YES (Confidence: 94%)
+    Ethnotary->>MultiSig: Submit Tx & AI Signatures (Confirm 1/5)
+    Ethnotary->>HumanA: Send approval payload (WhatsApp / Telegram)
+    Ethnotary->>HumanB: Send approval payload (WhatsApp / Telegram)
+    HumanA->>MultiSig: Review & confirm on-chain (Confirm 2/5)
+    HumanB->>MultiSig: Review & confirm on-chain (Confirm 3/5 - Threshold Met!)
+    Ethnotary->>MultiSig: Trigger final execution
+```
+
+### 4. Emergency Multi-Human Circuit Breaker Flow
+**Use Case:** Autonomous agents operate daily micro-transactions under strict policy caps. If risk agents detect anomalous behavior or prompt injection attempts, the system escalates governance to a multi-human safety council with emergency pause authority.
+
+```mermaid
+graph LR
+    subgraph Autonomous["🤖 Autonomous Agent Operations"]
+        Agent1["🤖 Research Agent"]
+        Agent2["🤖 Risk Agent"]
+    end
+    
+    subgraph Gate["🛡️ Policy & Security Gate"]
+        Check{"Anomalous Tx /<br/>Limit Exceeded?"}
+    end
+
+    subgraph MultiHuman["👥 Multi-Human Safety Council"]
+        H1["👤 Security Officer"]
+        H2["👤 Treasury Admin"]
+    end
+
+    subgraph OnChain["🏛️ MultiSig Contract"]
+        MS["MultiSig Account"]
+    end
+
+    Agent1 & Agent2 --> Check
+    Check -- "No (Normal Ops)" --> MS
+    Check -- "Yes (Escalate)" --> MultiHuman
+    H1 & H2 -- "Multi-Human Approval / Pause" --> MS
+```
 
 ---
 

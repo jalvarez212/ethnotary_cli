@@ -97,57 +97,7 @@ sequenceDiagram
     Ethnotary->>MultiSig: 5. Execute transaction cross-chain
 ```
 
-### 3. Multi-Human Governance Council Flow (Multiple Humans + AI Agents)
-**Use Case:** Enterprise or DAO treasuries governed by a multi-sig threshold (e.g., 3 of 5) shared between AI research/risk agents and multiple human board members. Specialized AI agents pre-approve proposals, while human co-owners receive mobile notifications to review and cast final deciding votes.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant AI1 as 🔍 Research Agent
-    participant AI2 as 🛡️ Risk Agent
-    participant Ethnotary as 🧠 Ethnotary Consensus Engine
-    participant HumanA as 👤 Human Admin A (CFO)
-    participant HumanB as 👤 Human Admin B (Security Lead)
-    participant MultiSig as 🏛️ MultiSig Account (3 of 5)
-
-    AI1->>Ethnotary: Propose capital allocation change
-    AI2->>Ethnotary: Evaluate risk & vote YES (Confidence: 94%)
-    Ethnotary->>MultiSig: Submit Tx & AI Signatures (Confirm 1/5)
-    Ethnotary->>HumanA: Send approval payload (WhatsApp / Telegram)
-    Ethnotary->>HumanB: Send approval payload (WhatsApp / Telegram)
-    HumanA->>MultiSig: Review & confirm on-chain (Confirm 2/5)
-    HumanB->>MultiSig: Review & confirm on-chain (Confirm 3/5 - Threshold Met!)
-    Ethnotary->>MultiSig: Trigger final execution
-```
-
-### 4. Emergency Multi-Human Circuit Breaker Flow
-**Use Case:** Autonomous agents operate daily micro-transactions under strict policy caps. If risk agents detect anomalous behavior or prompt injection attempts, the system escalates governance to a multi-human safety council with emergency pause authority.
-
-```mermaid
-graph LR
-    subgraph Autonomous["🤖 Autonomous Agent Operations"]
-        Agent1["🤖 Research Agent"]
-        Agent2["🤖 Risk Agent"]
-    end
-    
-    subgraph Gate["🛡️ Policy & Security Gate"]
-        Check{"Anomalous Tx /<br/>Limit Exceeded?"}
-    end
-
-    subgraph MultiHuman["👥 Multi-Human Safety Council"]
-        H1["👤 Security Officer"]
-        H2["👤 Treasury Admin"]
-    end
-
-    subgraph OnChain["🏛️ MultiSig Contract"]
-        MS["MultiSig Account"]
-    end
-
-    Agent1 & Agent2 --> Check
-    Check -- "No (Normal Ops)" --> MS
-    Check -- "Yes (Escalate)" --> MultiHuman
-    H1 & H2 -- "Multi-Human Approval / Pause" --> MS
-```
 
 ---
 

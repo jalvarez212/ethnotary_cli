@@ -21,9 +21,7 @@ This document maps Ethnotary's features directly to each prize track's judging c
 
 ## 🗺️ Architecture diagram
 
-→ [`docs/architecture.md`](./docs/architecture.md) (rendered Mermaid)
-
-A condensed version is also embedded in the [README](./README.md#architecture).
+→ Architecture diagrams and workflows are embedded in the [README](./README.md#architecture).
 
 ---
 
@@ -66,7 +64,7 @@ node demo/agent-committee.js
 | Autonomous commerce flow | ✅ | Prediction-market scenario: agents detect mispriced odds, vote, settle USDC payment |
 | Circle Agent Wallets integration | ✅ | [`demo/circle-funder.js`](./demo/circle-funder.js) — Treasury Agent funds the multi-sig from a Circle Developer-Controlled Wallet |
 | USDC settlement | ✅ | Funding leg on Base Sepolia via Circle SDK; spend leg via Ethnotary multi-sig |
-| Architecture diagram showing Circle integration | ✅ | [`docs/architecture.md`](./docs/architecture.md) — "Per-Agent Capital" subgraph |
+| Architecture diagram showing Circle integration | ✅ | [`README.md`](./README.md#architecture) — "Per-Agent Capital" subgraph |
 | Documentation | ✅ | This file + [`demo/README.md`](./demo/README.md) |
 
 **Circle integration details:**
@@ -91,10 +89,8 @@ node demo/agent-committee.js
 
 ```
 ethnotary-cli/
-├── README.md                    ← narrative + quickstart + diagram
+├── README.md                    ← narrative + quickstart + diagrams
 ├── HACKATHON.md                 ← this file (track-by-track judge map)
-├── docs/
-│   └── architecture.md          ← full Mermaid architecture diagram
 ├── demo/
 │   ├── agent-committee.js       ← runnable 4-agent demo
 │   ├── circle-funder.js         ← Circle Agent Wallets integration

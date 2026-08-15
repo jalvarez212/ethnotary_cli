@@ -22,7 +22,6 @@ Ethnotary supports both fully autonomous agent committees and **Human-in-the-Loo
 
 
 
-> Full diagram + flow walkthrough → [`docs/architecture.md`](./docs/architecture.md)
 
 ## Run the demo in 60 seconds
 

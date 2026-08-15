@@ -7,10 +7,8 @@ out/
 /broadcast/*/31337/
 /broadcast/**/dry-run/
 
-# Docs (ignore generated docs but keep curated ones)
+# Docs
 docs/
-!docs/architecture.md
-!docs/architecture.png
 
 # Dependencies
 node_modules/

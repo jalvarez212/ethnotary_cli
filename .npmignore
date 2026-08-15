@@ -1,0 +1,59 @@
+# Directories
+test/
+scripts/
+account/
+transaction/
+zkbuild/
+circuits/
+lib/
+out/
+cache/
+src/
+script/
+certs/
+skills/
+.github/
+.vscode/
+
+# Standalone setup/deployment files
+setup.js
+setup.js.backup
+bytecode.js
+create2_setup.js
+deploy_verifier.js
+msafactory_setup.js
+newmsa_setup.js
+debug_factory.js
+
+# Test and utility scripts
+genkey.js
+find_pin.js
+find-multisig-nfts.js
+test_zk.js
+test-*.js
+verify-*.js
+compile_circuit.sh
+
+# Config files
+foundry.toml
+ecosystem.config.js
+token_database.json
+
+# Environment files
+.env
+.env.example
+
+# Documentation (except README.md)
+COMPLETION_SUMMARY.md
+IMPLEMENTATION_SUMMARY.md
+MIGRATION_GUIDE.md
+README_ZKSNARK.md
+SECURITY_REVIEW.md
+TEST_MULTISIG_README.md
+task_completion_report.md
+setps.md
+
+# Other
+*.backup
+*.sym
+.DS_Store

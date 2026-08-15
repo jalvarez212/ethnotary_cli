@@ -1,0 +1,32 @@
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+
+# Docs (ignore generated docs but keep curated ones)
+docs/
+!docs/architecture.md
+!docs/architecture.png
+
+# Dependencies
+node_modules/
+
+# Dotenv file
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+
+# Local dev scripts containing secrets / one-off utilities
+genkey.js
+find_pin.js
+npm_recovery_codes*.txt
+
+# SSL certificates (local dev)
+certs/

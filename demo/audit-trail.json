@@ -1,0 +1,163 @@
+[
+  {
+    "sessionId": "session-1781410981065",
+    "startedAt": "2026-06-14T04:23:01.064Z",
+    "finishedAt": "2026-06-14T04:23:12.422Z",
+    "status": "execution_failed",
+    "error": "CLI failed: {\"error\":\"execution reverted (no data present; likely require(false) occurred (action=\\\"estimateGas\\\", data=\\\"0x\\\", reason=\\\"require(false)\\\", transaction={ \\\"data\\\": \\\"0xfe0d94c10000000000000000000000000000000000000000000000000000000000000000\\\", \\\"from\\\": \\\"0xe204b9f5105231A172d52A59D397dA05340dD8dc\\\", \\\"to\\\": \\\"0x5F705324Ec8472192c5d48252212ea08B7e9E72D\\\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.15.0)\"}\n",
+    "decisions": [
+      {
+        "agent": "research",
+        "action": "propose",
+        "proposal": {
+          "title": "Polymarket arbitrage opportunity",
+          "amountUsdc": 25,
+          "expectedValuePct": 12,
+          "rationale": "Detected mispricing on Polymarket arbitrage opportunity. Modeled EV +12% vs market consensus over 200 comparable resolutions."
+        }
+      },
+      {
+        "agent": "risk",
+        "decision": "approve",
+        "confidence": 0.78,
+        "reasoning": "Position sizing within 0.5% of treasury. Drawdown bounded at 25 USDC. Confidence 78% > 60% threshold."
+      },
+      {
+        "agent": "treasury",
+        "decision": "approve",
+        "reasoning": "Allocation budget available. 25 USDC < daily cap. No conflicting positions open."
+      },
+      {
+        "agent": "executor",
+        "action": "submit",
+        "multisig": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "network": "hedera-testnet",
+        "transactionId": 0,
+        "destination": "0x000000000000000000000000000000000048b34c",
+        "value": "0.001 ETH",
+        "txHash": "0x406ed5de16e607af627f677bcd0084a62810eee7429991faf5a63041e0a66654",
+        "status": "submitted",
+        "confirmations": "1/1",
+        "canExecute": true,
+        "approvalUrl": "https://ethnotary.io/app/views/txn.html?txid=0&network=hedera-testnet&address=0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "notifyOwners": []
+      }
+    ],
+    "circleFunding": null
+  },
+  {
+    "sessionId": "session-1781411074437",
+    "startedAt": "2026-06-14T04:24:34.437Z",
+    "finishedAt": "2026-06-14T04:24:50.725Z",
+    "status": "execution_failed",
+    "error": "CLI failed: {\"error\":\"transaction execution reverted (action=\\\"sendTransaction\\\", data=null, reason=null, invocation=null, revert=null, transaction={ \\\"data\\\": \\\"\\\", \\\"from\\\": \\\"0xe204b9f5105231A172d52A59D397dA05340dD8dc\\\", \\\"to\\\": \\\"0x5F705324Ec8472192c5d48252212ea08B7e9E72D\\\" }, receipt={ \\\"_type\\\": \\\"TransactionReceipt\\\", \\\"blobGasPrice\\\": null, \\\"blobGasUsed\\\": null, \\\"blockHash\\\": \\\"0x75ec9ee0dda605d765b69227a14e6713d4038bd67966f9128f6b87d22b868075\\\", \\\"blockNumber\\\": 36678844, \\\"contractAddress\\\": \\\"0x5F705324Ec8472192c5d48252212ea08B7e9E72D\\\", \\\"cumulativeGasUsed\\\": \\\"81166\\\", \\\"from\\\": \\\"0xe204b9f5105231A172d52A59D397dA05340dD8dc\\\", \\\"gasPrice\\\": \\\"1080000000000\\\", \\\"gasUsed\\\": \\\"81166\\\", \\\"hash\\\": \\\"0xd790d3a4ce2d0c597bc881ec109d0eae1648706e16c4c32973a23ae8f65b3677\\\", \\\"index\\\": 6, \\\"logs\\\": [  ], \\\"logsBloom\\\": \\\"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\\\", \\\"root\\\": \\\"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421\\\", \\\"status\\\": 0, \\\"to\\\": \\\"0x5F705324Ec8472192c5d48252212ea08B7e9E72D\\\" }, code=CALL_EXCEPTION, version=6.15.0)\"}\n",
+    "decisions": [
+      {
+        "agent": "research",
+        "action": "propose",
+        "proposal": {
+          "title": "Polymarket arbitrage opportunity",
+          "amountUsdc": 25,
+          "expectedValuePct": 12,
+          "rationale": "Detected mispricing on Polymarket arbitrage opportunity. Modeled EV +12% vs market consensus over 200 comparable resolutions."
+        }
+      },
+      {
+        "agent": "risk",
+        "decision": "approve",
+        "confidence": 0.78,
+        "reasoning": "Position sizing within 0.5% of treasury. Drawdown bounded at 25 USDC. Confidence 78% > 60% threshold."
+      },
+      {
+        "agent": "treasury",
+        "decision": "approve",
+        "reasoning": "Allocation budget available. 25 USDC < daily cap. No conflicting positions open."
+      },
+      {
+        "agent": "executor",
+        "action": "submit",
+        "multisig": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "network": "hedera-testnet",
+        "transactionId": 1,
+        "destination": "0xa3582258f64ccb0109122583cc5db01b9831f44d",
+        "value": "0.001 ETH",
+        "txHash": "0x5416171a8931612a21fc23cb3cf02914402b282f69f0bdae939aae92450fdab7",
+        "status": "submitted",
+        "confirmations": "1/1",
+        "canExecute": true,
+        "approvalUrl": "https://ethnotary.io/app/views/txn.html?txid=1&network=hedera-testnet&address=0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "notifyOwners": []
+      }
+    ],
+    "circleFunding": null
+  },
+  {
+    "sessionId": "session-1781411173469",
+    "startedAt": "2026-06-14T04:26:13.469Z",
+    "finishedAt": "2026-06-14T04:26:33.681Z",
+    "network": "hedera-testnet",
+    "multisig": {
+      "alias": "joy",
+      "address": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D"
+    },
+    "proposal": {
+      "title": "Polymarket arbitrage opportunity",
+      "amountUsdc": 25,
+      "expectedValuePct": 12,
+      "rationale": "Detected mispricing on Polymarket arbitrage opportunity. Modeled EV +12% vs market consensus over 200 comparable resolutions."
+    },
+    "decisions": [
+      {
+        "agent": "research",
+        "action": "propose",
+        "proposal": {
+          "title": "Polymarket arbitrage opportunity",
+          "amountUsdc": 25,
+          "expectedValuePct": 12,
+          "rationale": "Detected mispricing on Polymarket arbitrage opportunity. Modeled EV +12% vs market consensus over 200 comparable resolutions."
+        }
+      },
+      {
+        "agent": "risk",
+        "decision": "approve",
+        "confidence": 0.78,
+        "reasoning": "Position sizing within 0.5% of treasury. Drawdown bounded at 25 USDC. Confidence 78% > 60% threshold."
+      },
+      {
+        "agent": "treasury",
+        "decision": "approve",
+        "reasoning": "Allocation budget available. 25 USDC < daily cap. No conflicting positions open."
+      },
+      {
+        "agent": "executor",
+        "action": "submit",
+        "multisig": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "network": "hedera-testnet",
+        "transactionId": 2,
+        "destination": "0xa3582258f64ccb0109122583cc5db01b9831f44d",
+        "value": "0.001 ETH",
+        "txHash": "0x881a0a38ea8fef75769e76229dabb88fb74b0b2dccc25d15a5e8cdd119dd43e7",
+        "status": "submitted",
+        "confirmations": "1/1",
+        "canExecute": true,
+        "approvalUrl": "https://ethnotary.io/app/views/txn.html?txid=2&network=hedera-testnet&address=0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "notifyOwners": []
+      },
+      {
+        "agent": "executor",
+        "action": "execute",
+        "multisig": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "transactionId": 2,
+        "txHash": "0x883a3aacfb04a640d06a475354f9493af109e9b01fe841be26221b8e31ea9bb7",
+        "status": "executed"
+      }
+    ],
+    "circleFunding": null,
+    "onChain": {
+      "submitTxHash": "0x881a0a38ea8fef75769e76229dabb88fb74b0b2dccc25d15a5e8cdd119dd43e7",
+      "executeTxHash": "0x883a3aacfb04a640d06a475354f9493af109e9b01fe841be26221b8e31ea9bb7",
+      "transactionId": 2
+    },
+    "status": "executed"
+  }
+]

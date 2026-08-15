@@ -1,0 +1,520 @@
+const { ethers } = require('ethers');
+require('dotenv').config();
+
+/**
+ * Script to remove an owner from MultiSig across all EVM networks using multi-sig approval
+ * Usage: node removeOwner.js <multisig_address> <owner_to_remove> [--auto-confirm]
+ * 
+ * Process:
+ * 1. Submit removeOwner transaction
+ * 2. Confirm transaction (if --auto-confirm flag is set)
+ * 3. Execute transaction (if threshold is met)
+ */
+
+// MultiSig ABI - functions we need
+const MULTISIG_ABI = [
+    "function submitRemoveOwner(address accountOwner) public returns (uint256)",
+    "function confirmTransaction(uint transactionId) public",
+    "function execute(uint transactionId) public",
+    "function isConfirmed(uint transactionId) view returns (bool)",
+    "function isOwner(address) view returns (bool)",
+    "function getOwners() view returns (address[])",
+    "function required() view returns (uint)",
+    "function transactions(uint) view returns (address dest, uint value, bytes func, bool executed, uint id)",
+    "event Submission(uint indexed transactionId, address indexed destination, uint value, bytes data)",
+    "event Confirmation(address indexed sender, uint indexed transactionId)",
+    "event Execution(uint indexed transactionId, address indexed destination, uint value)",
+    "event OwnerRemoval(address indexed owner)"
+];
+
+// Available networks
+const NETWORKS = {
+    sepolia: {
+        name: 'Sepolia',
+        rpc: process.env.SEPOLIA_RPC_URL
+    },
+    'base-sepolia': {
+        name: 'Base Sepolia',
+        rpc: process.env.BASE_SEPOLIA_RPC_URL
+    },
+    'arbitrum-sepolia': {
+        name: 'Arbitrum Sepolia',
+        rpc: process.env.ARBITRUM_SEPOLIA_RPC_URL
+    }
+};
+
+class CrossChainOwnerRemover {
+    constructor(multisigAddress, ownerToRemove, autoConfirm = false) {
+        this.multisigAddress = multisigAddress;
+        this.ownerToRemove = ownerToRemove;
+        this.autoConfirm = autoConfirm;
+        this.results = {};
+        this.errors = {};
+    }
+
+    async removeOwnerAcrossNetworks() {
+        console.log(`🗑️  Removing owner ${this.ownerToRemove} from MultiSig ${this.multisigAddress} across all networks\n`);
+
+        // Validate addresses
+        if (!ethers.isAddress(this.multisigAddress)) {
+            throw new Error(`Invalid MultiSig address: ${this.multisigAddress}`);
+        }
+        if (!ethers.isAddress(this.ownerToRemove)) {
+            throw new Error(`Invalid owner address: ${this.ownerToRemove}`);
+        }
+
+        // Step 1: Check current state across networks
+        await this.checkCurrentState();
+
+        // Step 2: Check balances and gas requirements
+        await this.checkBalances();
+
+        // Step 3: Submit transactions across networks
+        await this.submitTransactions();
+
+        // Step 4: Confirm transactions (if auto-confirm)
+        if (this.autoConfirm) {
+            await this.confirmTransactions();
+        }
+
+        // Step 5: Execute transactions (if confirmed)
+        if (this.autoConfirm) {
+            await this.executeTransactions();
+        }
+
+        // Step 6: Verify results
+        await this.verifyResults();
+
+        // Step 7: Summary
+        this.printSummary();
+    }
+
+    async checkCurrentState() {
+        console.log('🔍 Step 1: Checking current state across networks...\n');
+
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!networkConfig.rpc) {
+                console.log(`⚠️  Skipping ${networkConfig.name}: No RPC URL configured`);
+                continue;
+            }
+
+            try {
+                const provider = new ethers.JsonRpcProvider(networkConfig.rpc);
+                const multisig = new ethers.Contract(this.multisigAddress, MULTISIG_ABI, provider);
+
+                // Check if contract exists
+                const code = await provider.getCode(this.multisigAddress);
+                if (code === '0x') {
+                    console.log(`⚠️  ${networkConfig.name}: No contract found at ${this.multisigAddress}`);
+                    this.results[networkKey] = { status: 'no_contract' };
+                    continue;
+                }
+
+                // Get current owners and check if owner exists
+                const [owners, required, isCurrentOwner] = await Promise.all([
+                    multisig.getOwners(),
+                    multisig.required(),
+                    multisig.isOwner(this.ownerToRemove)
+                ]);
+
+                console.log(`📊 ${networkConfig.name}:`);
+                console.log(`  Current owners: ${owners.length}`);
+                console.log(`  Required confirmations: ${required}`);
+                console.log(`  Owner exists: ${isCurrentOwner}`);
+
+                // Check if removing this owner would violate minimum requirements
+                const newOwnerCount = owners.length - 1;
+                const wouldViolateRequirement = newOwnerCount < Number(required);
+
+                if (wouldViolateRequirement) {
+                    console.log(`  ⚠️  Warning: Removing owner would reduce owners below required (${required})`);
+                    console.log(`  ⚠️  Required will be automatically adjusted to ${newOwnerCount}`);
+                }
+
+                this.results[networkKey] = {
+                    status: !isCurrentOwner ? 'not_owner' : 'ready',
+                    owners: owners.length,
+                    required: Number(required),
+                    newOwnerCount,
+                    wouldViolateRequirement,
+                    contract: multisig,
+                    provider
+                };
+
+            } catch (error) {
+                console.error(`❌ ${networkConfig.name}: Error checking state - ${error.message}`);
+                this.errors[networkKey] = error.message;
+                this.results[networkKey] = { status: 'error' };
+            }
+        }
+        console.log('');
+    }
+
+    async checkBalances() {
+        console.log('💰 Step 2: Checking wallet balances and gas requirements...\n');
+
+        const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+        console.log(`📋 Using wallet: ${wallet.address}`);
+
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!this.results[networkKey] || this.results[networkKey].status !== 'ready') {
+                continue;
+            }
+
+            try {
+                const provider = this.results[networkKey].provider;
+                const balance = await provider.getBalance(wallet.address);
+                const gasPrice = await provider.getFeeData();
+
+                // Estimate gas for submitRemoveOwner transaction
+                const multisig = this.results[networkKey].contract.connect(wallet.connect(provider));
+                let gasEstimate;
+                try {
+                    gasEstimate = await multisig.submitRemoveOwner.estimateGas(this.ownerToRemove);
+                } catch (error) {
+                    console.log(`⚠️  ${networkConfig.name}: Cannot estimate gas - ${error.message}`);
+                    gasEstimate = ethers.parseUnits('300000', 'wei'); // fallback estimate
+                }
+
+                const estimatedCost = gasEstimate * gasPrice.gasPrice;
+                const hasEnoughBalance = balance > estimatedCost;
+
+                console.log(`💳 ${networkConfig.name}:`);
+                console.log(`  Balance: ${ethers.formatEther(balance)} ETH`);
+                console.log(`  Estimated cost: ${ethers.formatEther(estimatedCost)} ETH`);
+                console.log(`  Sufficient funds: ${hasEnoughBalance ? '✅' : '❌'}`);
+
+                this.results[networkKey].balance = balance;
+                this.results[networkKey].estimatedCost = estimatedCost;
+                this.results[networkKey].hasEnoughBalance = hasEnoughBalance;
+
+                if (!hasEnoughBalance) {
+                    this.results[networkKey].status = 'insufficient_funds';
+                }
+
+            } catch (error) {
+                console.error(`❌ ${networkConfig.name}: Error checking balance - ${error.message}`);
+                this.errors[networkKey] = error.message;
+                this.results[networkKey].status = 'error';
+            }
+        }
+        console.log('');
+    }
+
+    async submitTransactions() {
+        console.log('🚀 Step 3: Submitting removeOwner transactions...\n');
+
+        const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+        const transactions = [];
+
+        // Prepare all transactions
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!this.results[networkKey] || this.results[networkKey].status !== 'ready') {
+                continue;
+            }
+
+            try {
+                const provider = this.results[networkKey].provider;
+                const multisig = this.results[networkKey].contract.connect(wallet.connect(provider));
+
+                console.log(`📤 ${networkConfig.name}: Submitting removeOwner transaction...`);
+
+                const tx = await multisig.submitRemoveOwner(this.ownerToRemove, {
+                    gasLimit: 300000 // Conservative gas limit
+                });
+
+                console.log(`  Transaction hash: ${tx.hash}`);
+                transactions.push({
+                    networkKey,
+                    networkName: networkConfig.name,
+                    tx,
+                    provider
+                });
+
+                this.results[networkKey].txHash = tx.hash;
+                this.results[networkKey].status = 'pending';
+
+            } catch (error) {
+                console.error(`❌ ${networkConfig.name}: Transaction failed - ${error.message}`);
+                this.errors[networkKey] = error.message;
+                this.results[networkKey].status = 'tx_failed';
+            }
+        }
+
+        // Wait for all transactions to complete
+        console.log('\n⏳ Waiting for transaction confirmations...\n');
+
+        for (const { networkKey, networkName, tx, provider } of transactions) {
+            try {
+                console.log(`⏳ ${networkName}: Waiting for confirmation...`);
+                const receipt = await tx.wait();
+
+                if (receipt.status === 1) {
+                    console.log(`✅ ${networkName}: Transaction submitted in block ${receipt.blockNumber}`);
+                    
+                    // Extract transaction ID from Submission event
+                    const submissionEvent = receipt.logs.find(log => {
+                        try {
+                            const parsed = this.results[networkKey].contract.interface.parseLog(log);
+                            return parsed && parsed.name === 'Submission';
+                        } catch { return false; }
+                    });
+                    
+                    if (submissionEvent) {
+                        const parsed = this.results[networkKey].contract.interface.parseLog(submissionEvent);
+                        const txId = parsed.args.transactionId;
+                        console.log(`  Transaction ID: ${txId}`);
+                        this.results[networkKey].transactionId = txId;
+                        this.results[networkKey].status = 'submitted';
+                    } else {
+                        this.results[networkKey].status = 'submitted_no_id';
+                    }
+                    this.results[networkKey].blockNumber = receipt.blockNumber;
+                } else {
+                    console.log(`❌ ${networkName}: Transaction failed`);
+                    this.results[networkKey].status = 'tx_failed';
+                }
+
+            } catch (error) {
+                console.error(`❌ ${networkName}: Confirmation failed - ${error.message}`);
+                this.errors[networkKey] = error.message;
+                this.results[networkKey].status = 'confirmation_failed';
+            }
+        }
+        console.log('');
+    }
+
+    async confirmTransactions() {
+        console.log('✅ Step 4: Confirming transactions...\n');
+
+        const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!this.results[networkKey] || !this.results[networkKey].transactionId) {
+                continue;
+            }
+
+            try {
+                const provider = this.results[networkKey].provider;
+                const multisig = this.results[networkKey].contract.connect(wallet.connect(provider));
+                const txId = this.results[networkKey].transactionId;
+
+                console.log(`📝 ${networkConfig.name}: Confirming transaction ${txId}...`);
+
+                const tx = await multisig.confirmTransaction(txId, {
+                    gasLimit: 200000
+                });
+
+                const receipt = await tx.wait();
+                
+                if (receipt.status === 1) {
+                    console.log(`✅ ${networkConfig.name}: Transaction confirmed`);
+                    this.results[networkKey].status = 'confirmed';
+                } else {
+                    console.log(`❌ ${networkConfig.name}: Confirmation failed`);
+                    this.results[networkKey].status = 'confirm_failed';
+                }
+
+            } catch (error) {
+                console.error(`❌ ${networkConfig.name}: Confirmation error - ${error.message}`);
+                this.errors[networkKey] = error.message;
+                this.results[networkKey].status = 'confirm_failed';
+            }
+        }
+        console.log('');
+    }
+
+    async executeTransactions() {
+        console.log('⚡ Step 5: Executing transactions...\n');
+
+        const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!this.results[networkKey] || !this.results[networkKey].transactionId) {
+                continue;
+            }
+
+            try {
+                const provider = this.results[networkKey].provider;
+                const multisig = this.results[networkKey].contract.connect(wallet.connect(provider));
+                const txId = this.results[networkKey].transactionId;
+
+                // Check if transaction is confirmed
+                const isConfirmed = await multisig.isConfirmed(txId);
+                if (!isConfirmed) {
+                    console.log(`⚠️  ${networkConfig.name}: Transaction ${txId} not yet confirmed`);
+                    continue;
+                }
+
+                console.log(`⚡ ${networkConfig.name}: Executing transaction ${txId}...`);
+
+                const tx = await multisig.execute(txId, {
+                    gasLimit: 500000
+                });
+
+                const receipt = await tx.wait();
+                
+                if (receipt.status === 1) {
+                    console.log(`✅ ${networkConfig.name}: Transaction executed in block ${receipt.blockNumber}`);
+                    this.results[networkKey].status = 'executed';
+                    this.results[networkKey].executionBlock = receipt.blockNumber;
+                } else {
+                    console.log(`❌ ${networkConfig.name}: Execution failed`);
+                    this.results[networkKey].status = 'execution_failed';
+                }
+
+            } catch (error) {
+                console.error(`❌ ${networkConfig.name}: Execution error - ${error.message}`);
+                this.errors[networkKey] = error.message;
+                this.results[networkKey].status = 'execution_failed';
+            }
+        }
+        console.log('');
+    }
+
+    async verifyResults() {
+        console.log('🔍 Step 6: Verifying owner removal across networks...\n');
+
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!this.results[networkKey] || this.results[networkKey].status !== 'executed') {
+                continue;
+            }
+
+            try {
+                const multisig = this.results[networkKey].contract;
+                const [isStillOwner, owners, required] = await Promise.all([
+                    multisig.isOwner(this.ownerToRemove),
+                    multisig.getOwners(),
+                    multisig.required()
+                ]);
+
+                console.log(`✅ ${networkConfig.name}: Owner removal verification`);
+                console.log(`  Owner removed: ${!isStillOwner ? '✅' : '❌'}`);
+                console.log(`  Total owners now: ${owners.length}`);
+                console.log(`  Required confirmations: ${required}`);
+
+                this.results[networkKey].verified = !isStillOwner;
+                this.results[networkKey].finalOwnerCount = owners.length;
+                this.results[networkKey].finalRequired = Number(required);
+
+            } catch (error) {
+                console.error(`❌ ${networkConfig.name}: Verification failed - ${error.message}`);
+                this.results[networkKey].verified = false;
+            }
+        }
+        console.log('');
+    }
+
+    printSummary() {
+        console.log('📋 EXECUTION SUMMARY');
+        console.log('===================');
+
+        let successCount = 0;
+        let networksWithContract = 0;
+        let totalNetworks = 0;
+
+        for (const [networkKey, networkConfig] of Object.entries(NETWORKS)) {
+            if (!networkConfig.rpc) continue;
+            
+            totalNetworks++;
+            const result = this.results[networkKey];
+
+            if (!result) {
+                console.log(`${networkConfig.name}: ❌ No result`);
+                continue;
+            }
+
+            // Count networks where contract exists
+            if (result.status !== 'no_contract') {
+                networksWithContract++;
+            }
+
+            switch (result.status) {
+                case 'executed':
+                    console.log(`${networkConfig.name}: ✅ Executed (Block: ${result.executionBlock})`);
+                    if (result.verified) {
+                        console.log(`  Owners: ${result.owners} → ${result.finalOwnerCount}`);
+                        console.log(`  Required: ${result.required} → ${result.finalRequired}`);
+                        successCount++;
+                    }
+                    break;
+                case 'submitted':
+                    console.log(`${networkConfig.name}: ⏳ Submitted (TxID: ${result.transactionId}) - needs confirmation`);
+                    break;
+                case 'confirmed':
+                    console.log(`${networkConfig.name}: ⏳ Confirmed (TxID: ${result.transactionId}) - needs execution`);
+                    break;
+                case 'not_owner':
+                    console.log(`${networkConfig.name}: ⚠️  Address is not an owner`);
+                    successCount++; // Count as success since no action needed
+                    break;
+                case 'no_contract':
+                    console.log(`${networkConfig.name}: ⚠️  No contract found`);
+                    break;
+                case 'insufficient_funds':
+                    console.log(`${networkConfig.name}: ❌ Insufficient funds`);
+                    break;
+                case 'tx_failed':
+                    console.log(`${networkConfig.name}: ❌ Transaction failed`);
+                    break;
+                case 'confirmation_failed':
+                    console.log(`${networkConfig.name}: ❌ Confirmation failed`);
+                    break;
+                default:
+                    console.log(`${networkConfig.name}: ❌ ${result.status}`);
+            }
+        }
+
+        console.log(`\n🎯 Result: ${successCount}/${networksWithContract} networks with contract updated successfully`);
+        console.log(`📊 Networks: ${networksWithContract} with contract, ${totalNetworks - networksWithContract} without contract, ${totalNetworks} total`);
+
+        if (Object.keys(this.errors).length > 0) {
+            console.log('\n❌ Errors encountered:');
+            Object.entries(this.errors).forEach(([network, error]) => {
+                console.log(`  ${network}: ${error}`);
+            });
+        }
+
+        if (networksWithContract === 0) {
+            console.log('\n⚠️  No contracts found on any network');
+        } else if (successCount === networksWithContract) {
+            console.log('\n🎉 Owner successfully removed across all networks with contracts!');
+        } else if (successCount > 0) {
+            console.log('\n⚠️  Partial success - some networks with contracts failed');
+        } else {
+            console.log('\n❌ Failed to remove owner on any network with contracts');
+        }
+    }
+}
+
+// CLI usage
+if (require.main === module) {
+    const args = process.argv.slice(2);
+    
+    if (args.length < 2) {
+        console.log('Usage: node removeOwner.js <multisig_address> <owner_to_remove> [--auto-confirm]');
+        console.log('');
+        console.log('Options:');
+        console.log('  --auto-confirm    Automatically confirm and execute the transaction');
+        console.log('');
+        console.log('Examples:');
+        console.log('  node removeOwner.js 0x1234... 0x5678...');
+        console.log('  node removeOwner.js 0x1234... 0x5678... --auto-confirm');
+        console.log('');
+        console.log('⚠️  WARNING: This will remove the specified owner from the MultiSig.');
+        console.log('⚠️  If this reduces owners below the required threshold, the requirement will be automatically adjusted.');
+        process.exit(1);
+    }
+    
+    const multisigAddress = args[0];
+    const ownerToRemove = args[1];
+    const autoConfirm = args.includes('--auto-confirm');
+    
+    const remover = new CrossChainOwnerRemover(multisigAddress, ownerToRemove, autoConfirm);
+    remover.removeOwnerAcrossNetworks().catch(error => {
+        console.error('❌ Fatal error:', error.message);
+        process.exit(1);
+    });
+}
+
+module.exports = { CrossChainOwnerRemover };

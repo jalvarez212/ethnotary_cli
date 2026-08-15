@@ -1,0 +1,924 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Token database for ERC20 and ERC721 contracts across multiple EVM networks",
+    "lastUpdated": "2025-10-27T18:51:32.907Z",
+    "totalTokens": 502,
+    "networks": [
+      "ethereum",
+      "base",
+      "arbitrum",
+      "optimism",
+      "polygon",
+      "bnbchain",
+      "soneium",
+      "sepolia",
+      "base-sepolia",
+      "arbitrum-sepolia",
+      "optimism-sepolia",
+      "polygon-amoy",
+      "bnb-testnet",
+      "soneium-testnet"
+    ]
+  },
+  "networks": {
+    "ethereum": {
+      "chainId": 1,
+      "name": "Ethereum Mainnet",
+      "rpc": "https://mainnet.infura.io/v3/",
+      "explorer": "https://etherscan.io",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {
+            "USDT": {
+              "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+              "name": "Tether USD",
+              "symbol": "USDT",
+              "decimals": 6,
+              "type": "stablecoin",
+              "marketCap": "181.95B"
+            },
+            "USDC": {
+              "address": "0xA0b86a33E6441E8C4C7C7C0c6C4C4C4C4C4C4C4C",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "stablecoin",
+              "marketCap": "76.21B"
+            },
+            "DAI": {
+              "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+              "name": "Dai Stablecoin",
+              "symbol": "DAI",
+              "decimals": 18,
+              "type": "stablecoin",
+              "marketCap": "5.36B"
+            },
+            "EURC": {
+              "address": "0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c",
+              "name": "Euro Coin",
+              "symbol": "EURC",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "PYUSD": {
+              "address": "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
+              "name": "PayPal USD",
+              "symbol": "PYUSD",
+              "decimals": 6,
+              "type": "stablecoin",
+              "marketCap": "2.73B"
+            },
+            "FDUSD": {
+              "address": "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
+              "name": "First Digital USD",
+              "symbol": "FDUSD",
+              "decimals": 18,
+              "type": "stablecoin",
+              "marketCap": "1.01B"
+            },
+            "TUSD": {
+              "address": "0x0000000000085d4780B73119b644AE5ecd22b376",
+              "name": "TrueUSD",
+              "symbol": "TUSD",
+              "decimals": 18,
+              "type": "stablecoin",
+              "marketCap": "493.07M"
+            },
+            "GUSD": {
+              "address": "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd",
+              "name": "Gemini Dollar",
+              "symbol": "GUSD",
+              "decimals": 2,
+              "type": "stablecoin"
+            },
+            "FRAX": {
+              "address": "0x853d955aCEf822Db058eb8505911ED77F175b99e",
+              "name": "Frax",
+              "symbol": "FRAX",
+              "decimals": 18,
+              "type": "stablecoin"
+            },
+            "LUSD": {
+              "address": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+              "name": "Liquity USD",
+              "symbol": "LUSD",
+              "decimals": 18,
+              "type": "stablecoin"
+            },
+            "USDD": {
+              "address": "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6",
+              "name": "USDD",
+              "symbol": "USDD",
+              "decimals": 18,
+              "type": "stablecoin",
+              "marketCap": "475.07M"
+            },
+            "USDP": {
+              "address": "0x8E870D67F660D95d5be530380D0eC0bd388289E1",
+              "name": "Pax Dollar",
+              "symbol": "USDP",
+              "decimals": 18,
+              "type": "stablecoin"
+            },
+            "EURS": {
+              "address": "0xdB25f211AB05b1c97D595516F45794528a807ad8",
+              "name": "STASIS EURO",
+              "symbol": "EURS",
+              "decimals": 2,
+              "type": "stablecoin"
+            },
+            "EURT": {
+              "address": "0xC581b735A1688071A1746c968e0798D642EDE491",
+              "name": "Tether EURt",
+              "symbol": "EURt",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "OUSD": {
+              "address": "0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86",
+              "name": "Origin Dollar",
+              "symbol": "OUSD",
+              "decimals": 18,
+              "type": "stablecoin"
+            }
+          },
+          "popular": {
+            "WETH": {
+              "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+              "name": "Wrapped Ether",
+              "symbol": "WETH",
+              "decimals": 18,
+              "type": "wrapped"
+            },
+            "WBTC": {
+              "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+              "name": "Wrapped BTC",
+              "symbol": "WBTC",
+              "decimals": 8,
+              "type": "wrapped"
+            },
+            "UNI": {
+              "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+              "name": "Uniswap",
+              "symbol": "UNI",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "LINK": {
+              "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+              "name": "ChainLink Token",
+              "symbol": "LINK",
+              "decimals": 18,
+              "type": "utility"
+            },
+            "AAVE": {
+              "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+              "name": "Aave Token",
+              "symbol": "AAVE",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "CRV": {
+              "address": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+              "name": "Curve DAO Token",
+              "symbol": "CRV",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "COMP": {
+              "address": "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+              "name": "Compound",
+              "symbol": "COMP",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "MKR": {
+              "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+              "name": "Maker",
+              "symbol": "MKR",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "SNX": {
+              "address": "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
+              "name": "Synthetix",
+              "symbol": "SNX",
+              "decimals": 18,
+              "type": "utility"
+            },
+            "1INCH": {
+              "address": "0x111111111117dC0aa78b770fA6A738034120C302",
+              "name": "1inch Network",
+              "symbol": "1INCH",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "BAL": {
+              "address": "0xba100000625a3754423978a60c9317c58a424e3D",
+              "name": "Balancer",
+              "symbol": "BAL",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "SUSHI": {
+              "address": "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+              "name": "SushiToken",
+              "symbol": "SUSHI",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "YFI": {
+              "address": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
+              "name": "yearn.finance",
+              "symbol": "YFI",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "LDO": {
+              "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+              "name": "Lido DAO Token",
+              "symbol": "LDO",
+              "decimals": 18,
+              "type": "governance"
+            },
+            "stETH": {
+              "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+              "name": "Liquid staked Ether 2.0",
+              "symbol": "stETH",
+              "decimals": 18,
+              "type": "liquid-staking"
+            }
+          }
+        },
+        "erc721": {
+          "popular": {
+            "BAYC": {
+              "address": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+              "name": "Bored Ape Yacht Club",
+              "symbol": "BAYC",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "MAYC": {
+              "address": "0x60E4d786628Fea6478F785A6d7e704777c86a7c6",
+              "name": "Mutant Ape Yacht Club",
+              "symbol": "MAYC",
+              "type": "pfp",
+              "totalSupply": 19423
+            },
+            "CRYPTOPUNKS": {
+              "address": "0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB",
+              "name": "CryptoPunks",
+              "symbol": "PUNK",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "AZUKI": {
+              "address": "0xED5AF388653567Af2F388E6224dC7C4b3241C544",
+              "name": "Azuki",
+              "symbol": "AZUKI",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "DOODLES": {
+              "address": "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
+              "name": "Doodles",
+              "symbol": "DOODLE",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "COOLCATS": {
+              "address": "0x1A92f7381B9F03921564a437210bB9396471050C",
+              "name": "Cool Cats NFT",
+              "symbol": "COOL",
+              "type": "pfp",
+              "totalSupply": 9999
+            },
+            "PUDGYPENGUINS": {
+              "address": "0xBd3531dA5CF5857e7CfAA92426877b022e612cf8",
+              "name": "Pudgy Penguins",
+              "symbol": "PPG",
+              "type": "pfp",
+              "totalSupply": 8888
+            },
+            "MOONBIRDS": {
+              "address": "0x23581767a106ae21c074b2276D25e5C3e136a68b",
+              "name": "Moonbirds",
+              "symbol": "MOONBIRD",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "CLONEX": {
+              "address": "0x49cF6f5d44E70224e2E23fDcdd2C053F30aDA28B",
+              "name": "CloneX",
+              "symbol": "CLONEX",
+              "type": "pfp",
+              "totalSupply": 20000
+            },
+            "ARTBLOCKS": {
+              "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270",
+              "name": "Art Blocks Curated",
+              "symbol": "BLOCKS",
+              "type": "art",
+              "totalSupply": null
+            },
+            "OTHERDEEDS": {
+              "address": "0x34d85c9CDeB23FA97cb08333b511ac86E1C4E258",
+              "name": "Otherdeeds for Otherside",
+              "symbol": "OTHR",
+              "type": "gaming",
+              "totalSupply": 100000
+            },
+            "VEEFRIENDS": {
+              "address": "0xa3AEe8BcE55BEeA1951EF834b99f3Ac60d1ABeeB",
+              "name": "VeeFriends",
+              "symbol": "VF",
+              "type": "pfp",
+              "totalSupply": 10255
+            },
+            "CRYPTOADZ": {
+              "address": "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6",
+              "name": "CrypToadz by GREMPLIN",
+              "symbol": "TOADZ",
+              "type": "pfp",
+              "totalSupply": 6969
+            },
+            "LOOT": {
+              "address": "0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7",
+              "name": "Loot (for Adventurers)",
+              "symbol": "LOOT",
+              "type": "gaming",
+              "totalSupply": 8000
+            },
+            "MEEBITS": {
+              "address": "0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7",
+              "name": "Meebits",
+              "symbol": "MEEBITS",
+              "type": "pfp",
+              "totalSupply": 20000
+            },
+            "WORLDOFWOMEN": {
+              "address": "0xe785E82358879F061BC3dcAC6f0444462D4b5330",
+              "name": "World of Women",
+              "symbol": "WOW",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "CYBERKONGZ": {
+              "address": "0x57a204AA1042f6E66DD7730813f4024114d74f37",
+              "name": "CyberKongz",
+              "symbol": "KONGZ",
+              "type": "pfp",
+              "totalSupply": 1000
+            },
+            "HASHMASKS": {
+              "address": "0xC2C747E0F7004F9E8817Db2ca4997657a7746928",
+              "name": "Hashmasks",
+              "symbol": "HM",
+              "type": "art",
+              "totalSupply": 16384
+            },
+            "BOREDAPEKENNELCLUB": {
+              "address": "0xba30E5F9Bb24caa003E9f2f0497Ad287FDF95623",
+              "name": "Bored Ape Kennel Club",
+              "symbol": "BAKC",
+              "type": "pfp",
+              "totalSupply": 9602
+            },
+            "DEGODS": {
+              "address": "0x8821BeE2ba0dF28761AffF119D66390D594CD280",
+              "name": "DeGods",
+              "symbol": "DEGODS",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "MILADY": {
+              "address": "0x5Af0D9827E0c53E4799BB226655A1de152A425a5",
+              "name": "Milady Maker",
+              "symbol": "MIL",
+              "type": "pfp",
+              "totalSupply": 10000
+            },
+            "GOBLINTOWN": {
+              "address": "0xbCe3781ae7Ca1a5e050Bd9C4c77369867eBc307e",
+              "name": "goblintown.wtf",
+              "symbol": "GOBLIN",
+              "type": "pfp",
+              "totalSupply": 9999
+            },
+            "OTHERSIDE": {
+              "address": "0x790B2cF29Ed4F310bf7641f013C65D4560d28371",
+              "name": "Otherside Koda",
+              "symbol": "KODA",
+              "type": "gaming",
+              "totalSupply": 10000
+            },
+            "SANDBOX": {
+              "address": "0x50f5474724e0Ee42D9a4e711ccFB275809Fd6d4a",
+              "name": "The Sandbox",
+              "symbol": "SAND",
+              "type": "gaming",
+              "totalSupply": null
+            },
+            "DECENTRALAND": {
+              "address": "0xF87E31492Faf9A91B02Ee0dEAAd50d51d56D5d4d",
+              "name": "Decentraland",
+              "symbol": "LAND",
+              "type": "gaming",
+              "totalSupply": 90000
+            },
+            "CRYPTOKITTIES": {
+              "address": "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d",
+              "name": "CryptoKitties",
+              "symbol": "CK",
+              "type": "gaming",
+              "totalSupply": null
+            },
+            "SUPERRARE": {
+              "address": "0xb932a70A57673d89f4acfFBE830E8ed7f75Fb9e0",
+              "name": "SuperRare",
+              "symbol": "SUPR",
+              "type": "art",
+              "totalSupply": null
+            },
+            "FOUNDATION": {
+              "address": "0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405",
+              "name": "Foundation",
+              "symbol": "FND",
+              "type": "art",
+              "totalSupply": null
+            },
+            "ASYNC": {
+              "address": "0x0cf8C9d1b99d7E8c0c69b5D2d71e8b0c4e3c4c4c",
+              "name": "Async Art",
+              "symbol": "ASYNC",
+              "type": "art",
+              "totalSupply": null
+            },
+            "NIFTYGATEWAY": {
+              "address": "0xe052113bd7d7700d623414a0a4585bcae754e9d5",
+              "name": "Nifty Gateway",
+              "symbol": "NIFTY",
+              "type": "art",
+              "totalSupply": null
+            },
+            "BEEPLE": {
+              "address": "0x12f28e2106ce8fd8464885b80ea865e98b465149",
+              "name": "Beeple Special Edition",
+              "symbol": "BEEPLE",
+              "type": "art",
+              "totalSupply": null
+            },
+            "FIDENZA": {
+              "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270",
+              "name": "Fidenza by Tyler Hobbs",
+              "symbol": "FIDENZA",
+              "type": "art",
+              "totalSupply": 999
+            },
+            "RINGERS": {
+              "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270",
+              "name": "Ringers by Dmitri Cherniak",
+              "symbol": "RINGERS",
+              "type": "art",
+              "totalSupply": 1000
+            },
+            "CHROMIE": {
+              "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270",
+              "name": "Chromie Squiggle by Snowfro",
+              "symbol": "SQUIGGLE",
+              "type": "art",
+              "totalSupply": 9975
+            }
+          }
+        }
+      }
+    },
+    "base": {
+      "chainId": 8453,
+      "name": "Base",
+      "rpc": "https://mainnet.base.org",
+      "explorer": "https://basescan.org",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {
+            "USDC": {
+              "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "DAI": {
+              "address": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+              "name": "Dai Stablecoin",
+              "symbol": "DAI",
+              "decimals": 18,
+              "type": "stablecoin"
+            }
+          },
+          "popular": {
+            "WETH": {
+              "address": "0x4200000000000000000000000000000000000006",
+              "name": "Wrapped Ether",
+              "symbol": "WETH",
+              "decimals": 18,
+              "type": "wrapped"
+            },
+            "cbETH": {
+              "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+              "name": "Coinbase Wrapped Staked ETH",
+              "symbol": "cbETH",
+              "decimals": 18,
+              "type": "liquid-staking"
+            }
+          }
+        }
+      }
+    },
+    "arbitrum": {
+      "chainId": 42161,
+      "name": "Arbitrum One",
+      "rpc": "https://arb1.arbitrum.io/rpc",
+      "explorer": "https://arbiscan.io",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {
+            "USDC": {
+              "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "USDT": {
+              "address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+              "name": "Tether USD",
+              "symbol": "USDT",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "DAI": {
+              "address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+              "name": "Dai Stablecoin",
+              "symbol": "DAI",
+              "decimals": 18,
+              "type": "stablecoin"
+            }
+          },
+          "popular": {
+            "WETH": {
+              "address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+              "name": "Wrapped Ether",
+              "symbol": "WETH",
+              "decimals": 18,
+              "type": "wrapped"
+            },
+            "ARB": {
+              "address": "0x912CE59144191C1204E64559FE8253a0e49E6548",
+              "name": "Arbitrum",
+              "symbol": "ARB",
+              "decimals": 18,
+              "type": "governance"
+            }
+          }
+        }
+      }
+    },
+    "optimism": {
+      "chainId": 10,
+      "name": "Optimism",
+      "rpc": "https://mainnet.optimism.io",
+      "explorer": "https://optimistic.etherscan.io",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {
+            "USDC": {
+              "address": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "USDT": {
+              "address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+              "name": "Tether USD",
+              "symbol": "USDT",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "DAI": {
+              "address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+              "name": "Dai Stablecoin",
+              "symbol": "DAI",
+              "decimals": 18,
+              "type": "stablecoin"
+            }
+          },
+          "popular": {
+            "WETH": {
+              "address": "0x4200000000000000000000000000000000000006",
+              "name": "Wrapped Ether",
+              "symbol": "WETH",
+              "decimals": 18,
+              "type": "wrapped"
+            },
+            "OP": {
+              "address": "0x4200000000000000000000000000000000000042",
+              "name": "Optimism",
+              "symbol": "OP",
+              "decimals": 18,
+              "type": "governance"
+            }
+          }
+        }
+      }
+    },
+    "polygon": {
+      "chainId": 137,
+      "name": "Polygon",
+      "rpc": "https://polygon-rpc.com",
+      "explorer": "https://polygonscan.com",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {
+            "USDC": {
+              "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "USDT": {
+              "address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+              "name": "Tether USD",
+              "symbol": "USDT",
+              "decimals": 6,
+              "type": "stablecoin"
+            },
+            "DAI": {
+              "address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+              "name": "Dai Stablecoin",
+              "symbol": "DAI",
+              "decimals": 18,
+              "type": "stablecoin"
+            }
+          },
+          "popular": {
+            "WETH": {
+              "address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+              "name": "Wrapped Ether",
+              "symbol": "WETH",
+              "decimals": 18,
+              "type": "wrapped"
+            },
+            "WMATIC": {
+              "address": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+              "name": "Wrapped Matic",
+              "symbol": "WMATIC",
+              "decimals": 18,
+              "type": "wrapped"
+            }
+          }
+        }
+      }
+    },
+    "bnbchain": {
+      "chainId": 56,
+      "name": "BNB Smart Chain",
+      "rpc": "https://bsc-dataseed.binance.org",
+      "explorer": "https://bscscan.com",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {
+            "USDT": {
+              "address": "0x55d398326f99059fF775485246999027B3197955",
+              "name": "Tether USD",
+              "symbol": "USDT",
+              "decimals": 18,
+              "type": "stablecoin"
+            },
+            "USDC": {
+              "address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "decimals": 18,
+              "type": "stablecoin"
+            },
+            "BUSD": {
+              "address": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+              "name": "Binance USD",
+              "symbol": "BUSD",
+              "decimals": 18,
+              "type": "stablecoin"
+            }
+          },
+          "popular": {
+            "WBNB": {
+              "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+              "name": "Wrapped BNB",
+              "symbol": "WBNB",
+              "decimals": 18,
+              "type": "wrapped"
+            }
+          }
+        }
+      }
+    },
+    "soneium": {
+      "chainId": 1946,
+      "name": "Soneium",
+      "rpc": "https://rpc.soneium.org",
+      "explorer": "https://soneium.org",
+      "tokens": {
+        "erc20": {
+          "stablecoins": {},
+          "popular": {}
+        }
+      }
+    },
+    "sepolia": {
+      "chainId": 11155111,
+      "name": "Sepolia Testnet",
+      "rpc": "https://sepolia.infura.io/v3/",
+      "explorer": "https://sepolia.etherscan.io",
+      "tokens": {
+        "erc20": {
+          "testTokens": {
+            "USDC": {
+              "address": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+              "name": "USD Coin (Test)",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "test-stablecoin"
+            },
+            "DAI": {
+              "address": "0x3e622317f8C93f7328350cF0B56d9eD4C620C5d6",
+              "name": "Dai Stablecoin (Test)",
+              "symbol": "DAI",
+              "decimals": 18,
+              "type": "test-stablecoin"
+            }
+          },
+          "discovered": {
+            "MT_399a": {
+              "address": "0x399ab04277063386023c41d0f77d15b79cb2d3be",
+              "name": "MyToken",
+              "symbol": "MT",
+              "type": "discovered",
+              "decimals": "18",
+              "discoveryMethod": "events",
+              "discoveredAt": "2025-10-27T18:51:32.907Z",
+              "lastVerified": "2025-10-27T18:51:32.907Z"
+            }
+          }
+        },
+        "erc721": {
+          "testNFTs": {
+            "MOCK_BAYC": {
+              "address": "0xE29F8038d1A3445Ab22AD1373c65eC0a6E1161a4",
+              "name": "Mock Bored Ape Yacht Club",
+              "symbol": "MBAYC",
+              "type": "pfp",
+              "totalSupply": null
+            }
+          },
+          "discovered": {
+            "DOODLE_e6c1": {
+              "address": "0xe6c1ee6624c6819262f29199df25a70b2648b818",
+              "name": "Doodles",
+              "symbol": "DOODLE",
+              "type": "discovered",
+              "discoveryMethod": "events",
+              "discoveredAt": "2025-10-27T18:51:32.907Z",
+              "lastVerified": "2025-10-27T18:51:32.907Z"
+            }
+          }
+        }
+      }
+    },
+    "base-sepolia": {
+      "chainId": 84532,
+      "name": "Base Sepolia",
+      "rpc": "https://sepolia.base.org",
+      "explorer": "https://sepolia.basescan.org",
+      "tokens": {
+        "erc20": {
+          "testTokens": {
+            "USDC": {
+              "address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "name": "USD Coin (Test)",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "test-stablecoin"
+            }
+          }
+        }
+      }
+    },
+    "arbitrum-sepolia": {
+      "chainId": 421614,
+      "name": "Arbitrum Sepolia",
+      "rpc": "https://sepolia-rollup.arbitrum.io/rpc",
+      "explorer": "https://sepolia.arbiscan.io",
+      "tokens": {
+        "erc20": {
+          "testTokens": {
+            "USDC": {
+              "address": "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d",
+              "name": "USD Coin (Test)",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "test-stablecoin"
+            }
+          }
+        }
+      }
+    },
+    "optimism-sepolia": {
+      "chainId": 11155420,
+      "name": "Optimism Sepolia",
+      "rpc": "https://sepolia.optimism.io",
+      "explorer": "https://sepolia-optimism.etherscan.io",
+      "tokens": {
+        "erc20": {
+          "testTokens": {
+            "USDC": {
+              "address": "0x5fd84259d66Cd46123540766Be93DFE6D43130D7",
+              "name": "USD Coin (Test)",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "test-stablecoin"
+            }
+          }
+        }
+      }
+    },
+    "polygon-amoy": {
+      "chainId": 80002,
+      "name": "Polygon Amoy",
+      "rpc": "https://rpc-amoy.polygon.technology",
+      "explorer": "https://amoy.polygonscan.com",
+      "tokens": {
+        "erc20": {
+          "testTokens": {
+            "USDC": {
+              "address": "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+              "name": "USD Coin (Test)",
+              "symbol": "USDC",
+              "decimals": 6,
+              "type": "test-stablecoin"
+            }
+          }
+        }
+      }
+    },
+    "bnb-testnet": {
+      "chainId": 97,
+      "name": "BNB Smart Chain Testnet",
+      "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545",
+      "explorer": "https://testnet.bscscan.com",
+      "tokens": {
+        "erc20": {
+          "testTokens": {
+            "USDT": {
+              "address": "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
+              "name": "Tether USD (Test)",
+              "symbol": "USDT",
+              "decimals": 18,
+              "type": "test-stablecoin"
+            }
+          }
+        }
+      }
+    },
+    "soneium-testnet": {
+      "chainId": 1946001,
+      "name": "Soneium Testnet",
+      "rpc": "https://rpc.testnet.soneium.org",
+      "explorer": "https://testnet.soneium.org",
+      "tokens": {
+        "erc20": {
+          "testTokens": {}
+        }
+      }
+    }
+  },
+  "tokenTypes": {
+    "erc20": {
+      "stablecoin": "Pegged to fiat currency",
+      "wrapped": "Wrapped native token",
+      "governance": "Protocol governance token",
+      "utility": "Protocol utility token",
+      "liquid-staking": "Liquid staking derivative",
+      "test-stablecoin": "Testnet stablecoin"
+    },
+    "erc721": {
+      "pfp": "Profile picture NFT",
+      "art": "Digital art NFT",
+      "gaming": "Gaming NFT",
+      "utility": "Utility NFT"
+    }
+  }
+}

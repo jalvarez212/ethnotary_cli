@@ -1,0 +1,13 @@
+{
+  "multisigAlias": "joy",
+  "network": "hedera-testnet",
+  "recipient": "0xa3582258f64ccb0109122583cc5db01b9831f44d",
+  "valueEth": "0.001",
+  "scenario": {
+    "title": "Polymarket arbitrage opportunity",
+    "marketUrl": "https://polymarket.com/event/example",
+    "amountUsdc": 25,
+    "expectedValuePct": 12,
+    "confidence": 0.78
+  }
+}

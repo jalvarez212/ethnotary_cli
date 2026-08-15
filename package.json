@@ -1,0 +1,58 @@
+{
+  "name": "ethnotary",
+  "version": "1.0.2",
+  "description": "CLI for managing MultiSig accounts, transactions, and data queries across EVM networks",
+  "main": "cli/index.js",
+  "bin": {
+    "ethnotary": "./cli/index.js"
+  },
+  "scripts": {
+    "balance": "node data/balance.js",
+    "test": "echo \"No tests yet\""
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "cli/",
+    "data/",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ethnotary/ethnotary-cli.git"
+  },
+  "homepage": "https://ethnotary.io",
+  "bugs": {
+    "url": "https://github.com/ethnotary/ethnotary-cli/issues"
+  },
+  "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^7.0.0",
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1",
+    "poseidon-lite": "^0.3.0",
+    "snarkjs": "^0.7.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "circom_tester": "^0.0.24",
+    "circomlib": "^2.0.5"
+  },
+  "keywords": [
+    "ethnotary",
+    "multisig",
+    "blockchain",
+    "cli",
+    "ethereum",
+    "web3",
+    "wallet",
+    "evm",
+    "ai-agent"
+  ],
+  "author": "Ethnotary",
+  "license": "GPL-3.0"
+}

@@ -1,0 +1,92 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "description": "Token database for MultiSig dashboard",
+        "lastUpdated": "2025-10-27",
+        "totalTokens": 0,
+        "networks": ["sepolia", "base-sepolia", "arbitrum-sepolia"]
+    },
+    "networks": {
+        "sepolia": {
+            "chainId": 11155111,
+            "name": "Sepolia Testnet",
+            "tokens": {
+                "erc20": {
+                    "testTokens": {
+                        "WETH": {
+                            "address": "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
+                            "name": "Wrapped Ether",
+                            "symbol": "WETH",
+                            "decimals": 18,
+                            "type": "wrapped"
+                        },
+                        "USDC": {
+                            "address": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+                            "name": "USD Coin",
+                            "symbol": "USDC",
+                            "decimals": 6,
+                            "type": "stablecoin"
+                        },
+                        "DAI": {
+                            "address": "0x3e622317f8C93f7328350cF0B56d9eD4C620C5d6",
+                            "name": "Dai Stablecoin",
+                            "symbol": "DAI",
+                            "decimals": 18,
+                            "type": "stablecoin"
+                        }
+                    }
+                },
+                "erc721": {
+                    "testNFTs": {
+                        "MBAYC": {
+                            "address": "0xE29F8038d1A3445Ab22AD1373c65eC0a6E1161a4",
+                            "name": "Bored Ape Yacht Club",
+                            "symbol": "MBAYC",
+                            "type": "pfp"
+                        }
+                    }
+                }
+            }
+        },
+        "base-sepolia": {
+            "chainId": 84532,
+            "name": "Base Sepolia",
+            "tokens": {
+                "erc20": {
+                    "testTokens": {
+                        "WETH": {
+                            "address": "0x4200000000000000000000000000000000000006",
+                            "name": "Wrapped Ether",
+                            "symbol": "WETH",
+                            "decimals": 18,
+                            "type": "wrapped"
+                        }
+                    }
+                },
+                "erc721": {
+                    "testNFTs": {}
+                }
+            }
+        },
+        "arbitrum-sepolia": {
+            "chainId": 421614,
+            "name": "Arbitrum Sepolia",
+            "tokens": {
+                "erc20": {
+                    "testTokens": {
+                        "WETH": {
+                            "address": "0x980B62Da83eFf3D4576C647993b0c1D7faf17c73",
+                            "name": "Wrapped Ether",
+                            "symbol": "WETH",
+                            "decimals": 18,
+                            "type": "wrapped"
+                        }
+                    }
+                },
+                "erc721": {
+                    "testNFTs": {}
+                }
+            }
+        }
+    }
+}

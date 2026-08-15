@@ -1,0 +1,276 @@
+const { ethers } = require('ethers');
+const fs = require('fs');
+const { execSync } = require('child_process');
+require('dotenv').config();
+
+/**
+ * Complete deployment script for CREATE2Factory and MSAFactory
+ * Deploys to same addresses on both Sepolia and Base Sepolia
+ * Usage: node setup.js
+ */
+
+class CrossChainDeployer {
+    constructor() {
+        this.networks = {
+            sepolia: {
+                name: 'sepolia',
+                rpc: process.env.SEPOLIA_RPC_URL
+            },
+            'base-sepolia': {
+                name: 'base-sepolia', 
+                rpc: process.env.BASE_SEPOLIA_RPC_URL
+            }
+        };
+        
+        this.wallet = null;
+        this.deployedAddresses = {};
+    }
+
+    async setup() {
+        console.log('🚀 Starting cross-chain deployment setup...\n');
+        
+        // Validate environment
+        this.validateEnvironment();
+        
+        // Compile contracts
+        await this.compileContracts();
+        
+        // Deploy CREATE2Factory to both networks
+        await this.deployCREATE2Factories();
+        
+        // Deploy MSAFactory to both networks using CREATE2
+        await this.deployMSAFactories();
+        
+        // Summary
+        this.printSummary();
+    }
+
+    validateEnvironment() {
+        console.log('🔍 Validating environment...');
+        
+        if (!process.env.PRIVATE_KEY) {
+            throw new Error('PRIVATE_KEY not found in .env');
+        }
+        
+        for (const [key, network] of Object.entries(this.networks)) {
+            if (!network.rpc) {
+                throw new Error(`${key.toUpperCase()}_RPC_URL not found in .env`);
+            }
+        }
+        
+        this.wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+        console.log(`📋 Using wallet: ${this.wallet.address}`);
+        console.log('✅ Environment validated\n');
+    }
+
+    async compileContracts() {
+        console.log('🔨 Compiling contracts...');
+        try {
+            execSync('forge build', { stdio: 'inherit' });
+            console.log('✅ Contracts compiled\n');
+        } catch (error) {
+            throw new Error('Failed to compile contracts. Make sure Forge is installed.');
+        }
+    }
+
+    async deployCREATE2Factories() {
+        console.log('🏭 Deploying CREATE2Factory to both networks...');
+        
+        // Load CREATE2Factory bytecode
+        const artifactPath = './out/CREATE2Factory.sol/CREATE2Factory.json';
+        if (!fs.existsSync(artifactPath)) {
+            throw new Error('CREATE2Factory artifact not found');
+        }
+        
+        const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+        const bytecode = artifact.bytecode.object;
+        
+        console.log(`📦 CREATE2Factory bytecode loaded (${bytecode.length / 2 - 1} bytes)`);
+        
+        // Deploy to both networks using same nonce
+        const baseNonce = await this.findBaseNonce();
+        console.log(`🎯 Using base nonce: ${baseNonce}`);
+        
+        const deployments = [];
+        
+        for (const [networkName, network] of Object.entries(this.networks)) {
+            console.log(`\n📡 Deploying CREATE2Factory to ${networkName}...`);
+            
+            const provider = new ethers.JsonRpcProvider(network.rpc);
+            const wallet = this.wallet.connect(provider);
+            
+            // Advance to base nonce if needed
+            await this.advanceToNonce(wallet, baseNonce);
+            
+            // Deploy
+            const tx = await wallet.sendTransaction({
+                data: bytecode,
+                gasLimit: 2000000,
+                nonce: baseNonce
+            });
+            
+            console.log(`📤 Transaction sent: ${tx.hash}`);
+            deployments.push({ networkName, tx, provider });
+        }
+        
+        // Wait for all deployments
+        for (const { networkName, tx, provider } of deployments) {
+            const receipt = await tx.wait();
+            const address = receipt.contractAddress;
+            
+            console.log(`✅ ${networkName}: CREATE2Factory deployed at ${address}`);
+            this.deployedAddresses[networkName] = { create2Factory: address };
+        }
+        
+        // Verify same addresses
+        const addresses = Object.values(this.deployedAddresses).map(d => d.create2Factory);
+        if (new Set(addresses).size === 1) {
+            console.log(`🎉 SUCCESS: CREATE2Factory deployed to same address on all networks: ${addresses[0]}\n`);
+        } else {
+            throw new Error('CREATE2Factory addresses do not match across networks');
+        }
+    }
+
+    async deployMSAFactories() {
+        console.log('🏭 Deploying MSAFactory using CREATE2...');
+        
+        // Generate MSAFactory bytecode
+        console.log('📦 Generating MSAFactory bytecode...');
+        execSync('node bytecode.js', { stdio: 'inherit' });
+        
+        const bytecode = fs.readFileSync('msafactory-creation-bytecode.txt', 'utf8').trim();
+        console.log(`📦 MSAFactory bytecode loaded (${bytecode.length / 2 - 1} bytes)`);
+        
+        const CREATE2_ABI = [
+            "function deploy(bytes memory bytecode, bytes32 salt) external returns (address)",
+            "function predictAddress(bytes memory bytecode, bytes32 salt) external view returns (address)"
+        ];
+        
+        // Use deterministic salt
+        const salt = "0x0000000000000000000000000000000000000000000000000000000000000001";
+        console.log(`🧂 Using salt: ${salt}`);
+        
+        // Predict address (should be same on all networks)
+        const firstNetwork = Object.values(this.networks)[0];
+        const firstProvider = new ethers.JsonRpcProvider(firstNetwork.rpc);
+        const firstCreate2Factory = new ethers.Contract(
+            this.deployedAddresses[Object.keys(this.networks)[0]].create2Factory,
+            CREATE2_ABI,
+            firstProvider
+        );
+        
+        const predictedAddress = await firstCreate2Factory.predictAddress(bytecode, salt);
+        console.log(`🔮 Predicted MSAFactory address: ${predictedAddress}`);
+        
+        // Deploy to all networks
+        const deployments = [];
+        
+        for (const [networkName, network] of Object.entries(this.networks)) {
+            console.log(`\n📡 Deploying MSAFactory to ${networkName}...`);
+            
+            const provider = new ethers.JsonRpcProvider(network.rpc);
+            const wallet = this.wallet.connect(provider);
+            const create2Factory = new ethers.Contract(
+                this.deployedAddresses[networkName].create2Factory,
+                CREATE2_ABI,
+                wallet
+            );
+            
+            // Check if already deployed
+            const code = await provider.getCode(predictedAddress);
+            if (code !== '0x') {
+                console.log(`✅ ${networkName}: MSAFactory already deployed at ${predictedAddress}`);
+                this.deployedAddresses[networkName].msaFactory = predictedAddress;
+                continue;
+            }
+            
+            // Deploy
+            const tx = await create2Factory.deploy(bytecode, salt, {
+                gasLimit: 5000000
+            });
+            
+            console.log(`📤 Transaction sent: ${tx.hash}`);
+            deployments.push({ networkName, tx });
+        }
+        
+        // Wait for deployments
+        for (const { networkName, tx } of deployments) {
+            await tx.wait();
+            console.log(`✅ ${networkName}: MSAFactory deployed at ${predictedAddress}`);
+            this.deployedAddresses[networkName].msaFactory = predictedAddress;
+        }
+        
+        console.log(`🎉 SUCCESS: MSAFactory deployed to same address on all networks: ${predictedAddress}\n`);
+    }
+
+    async findBaseNonce() {
+        // Find the highest nonce across all networks
+        let maxNonce = 0;
+        
+        for (const [networkName, network] of Object.entries(this.networks)) {
+            const provider = new ethers.JsonRpcProvider(network.rpc);
+            const nonce = await provider.getTransactionCount(this.wallet.address);
+            console.log(`📊 ${networkName} nonce: ${nonce}`);
+            maxNonce = Math.max(maxNonce, nonce);
+        }
+        
+        return maxNonce;
+    }
+
+    async advanceToNonce(wallet, targetNonce) {
+        const currentNonce = await wallet.provider.getTransactionCount(wallet.address);
+        
+        if (currentNonce >= targetNonce) {
+            return;
+        }
+        
+        console.log(`🔄 Advancing nonce from ${currentNonce} to ${targetNonce}...`);
+        
+        const dummyTxs = [];
+        for (let i = currentNonce; i < targetNonce; i++) {
+            const tx = await wallet.sendTransaction({
+                to: wallet.address,
+                value: 0,
+                gasLimit: 21000,
+                nonce: i
+            });
+            dummyTxs.push(tx);
+        }
+        
+        // Wait for all dummy transactions
+        for (const tx of dummyTxs) {
+            await tx.wait();
+        }
+        
+        console.log(`✅ Nonce advanced to ${targetNonce}`);
+    }
+
+    printSummary() {
+        console.log('📋 DEPLOYMENT SUMMARY');
+        console.log('====================');
+        
+        for (const [networkName, addresses] of Object.entries(this.deployedAddresses)) {
+            console.log(`\n${networkName.toUpperCase()}:`);
+            console.log(`  CREATE2Factory: ${addresses.create2Factory}`);
+            console.log(`  MSAFactory: ${addresses.msaFactory}`);
+        }
+        
+        console.log('\n💾 Add these to your .env file:');
+        console.log(`CREATE2_FACTORY_ADDRESS=${this.deployedAddresses[Object.keys(this.networks)[0]].create2Factory}`);
+        console.log(`SEPOLIA_FACTORY_ADDRESS=${this.deployedAddresses.sepolia.msaFactory}`);
+        console.log(`BASE_SEPOLIA_FACTORY_ADDRESS=${this.deployedAddresses['base-sepolia'].msaFactory}`);
+        
+        console.log('\n🎉 Setup complete! You can now deploy MultiSig accounts with identical addresses across networks.');
+    }
+}
+
+// CLI usage
+if (require.main === module) {
+    const deployer = new CrossChainDeployer();
+    deployer.setup().catch(error => {
+        console.error('❌ Deployment failed:', error.message);
+        process.exit(1);
+    });
+}
+
+module.exports = { CrossChainDeployer };

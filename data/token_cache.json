@@ -1,0 +1,54 @@
+{
+  "0xe4F717Fbe2901efF97d3fD48593Ef2c6453b4Eee_scan": {
+    "data": [
+      {
+        "type": "ERC721",
+        "address": "0xe29f8038d1a3445ab22ad1373c65ec0a6e1161a4",
+        "symbol": "BAYC",
+        "name": "BoredApeYachtClub",
+        "balance": "1",
+        "tokenIds": [
+          "340"
+        ],
+        "tokenDetails": [
+          {
+            "id": "340",
+            "uri": "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/340"
+          }
+        ],
+        "network": "sepolia",
+        "source": "events"
+      },
+      {
+        "type": "ERC20",
+        "address": "0x399ab04277063386023c41d0f77d15b79cb2d3be",
+        "symbol": "MT",
+        "name": "MyToken",
+        "balance": "10000.0",
+        "rawBalance": "10000000000000000000000",
+        "decimals": "18",
+        "network": "sepolia",
+        "source": "events"
+      },
+      {
+        "type": "ERC721",
+        "address": "0xe6c1ee6624c6819262f29199df25a70b2648b818",
+        "symbol": "DOODLE",
+        "name": "Doodles",
+        "balance": "1",
+        "tokenIds": [
+          "233"
+        ],
+        "tokenDetails": [
+          {
+            "id": "233",
+            "uri": "ipfs://QmPMc4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB4aS/233"
+          }
+        ],
+        "network": "sepolia",
+        "source": "events"
+      }
+    ],
+    "timestamp": 1761750128412
+  }
+}

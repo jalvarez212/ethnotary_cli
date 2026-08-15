@@ -8,19 +8,19 @@ import {MultiSigAccount, MSAFactory, IVerifier} from "../src/MultiSig.sol";
 contract MockERC20 {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
-    
+
     string public name = "Mock Token";
     string public symbol = "MOCK";
     uint8 public decimals = 18;
-    uint256 public totalSupply = 1000000 * 10**18;
-    
+    uint256 public totalSupply = 1000000 * 10 ** 18;
+
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    
+
     constructor() {
         balanceOf[msg.sender] = totalSupply;
     }
-    
+
     function transfer(address to, uint256 value) external returns (bool) {
         require(balanceOf[msg.sender] >= value, "Insufficient balance");
         balanceOf[msg.sender] -= value;
@@ -28,21 +28,21 @@ contract MockERC20 {
         emit Transfer(msg.sender, to, value);
         return true;
     }
-    
+
     function approve(address spender, uint256 value) external returns (bool) {
         allowance[msg.sender][spender] = value;
         emit Approval(msg.sender, spender, value);
         return true;
     }
-    
+
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
         require(balanceOf[from] >= value, "Insufficient balance");
         require(allowance[from][msg.sender] >= value, "Insufficient allowance");
-        
+
         balanceOf[from] -= value;
         balanceOf[to] += value;
         allowance[from][msg.sender] -= value;
-        
+
         emit Transfer(from, to, value);
         return true;
     }
@@ -54,15 +54,15 @@ contract MockERC721 {
     mapping(address => uint256) public balanceOf;
     mapping(uint256 => address) public getApproved;
     mapping(address => mapping(address => bool)) public isApprovedForAll;
-    
+
     string public name = "Mock NFT";
     string public symbol = "MNFT";
     uint256 public nextTokenId = 1;
-    
+
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-    
+
     function mint(address to) external returns (uint256) {
         uint256 tokenId = nextTokenId++;
         ownerOf[tokenId] = to;
@@ -70,23 +70,21 @@ contract MockERC721 {
         emit Transfer(address(0), to, tokenId);
         return tokenId;
     }
-    
+
     function safeTransferFrom(address from, address to, uint256 tokenId) external {
         require(ownerOf[tokenId] == from, "Not owner");
         require(
-            msg.sender == from || 
-            getApproved[tokenId] == msg.sender || 
-            isApprovedForAll[from][msg.sender],
+            msg.sender == from || getApproved[tokenId] == msg.sender || isApprovedForAll[from][msg.sender],
             "Not approved"
         );
-        
+
         ownerOf[tokenId] = to;
         balanceOf[from]--;
         balanceOf[to]++;
         delete getApproved[tokenId];
-        
+
         emit Transfer(from, to, tokenId);
-        
+
         if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, "") returns (bytes4 response) {
                 if (response != IERC721Receiver.onERC721Received.selector) {
@@ -103,7 +101,7 @@ contract MockERC721 {
             }
         }
     }
-    
+
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return interfaceId == 0x80ac58cd || interfaceId == 0x5b5e139f || interfaceId == 0x01ffc9a7;
     }
@@ -111,18 +109,19 @@ contract MockERC721 {
 
 // Mock Verifier for testing
 contract MockVerifier {
-    function verifyProof(
-        uint[2] calldata,
-        uint[2][2] calldata,
-        uint[2] calldata,
-        uint[3] calldata
-    ) external pure returns (bool) {
+    function verifyProof(uint256[2] calldata, uint256[2][2] calldata, uint256[2] calldata, uint256[3] calldata)
+        external
+        pure
+        returns (bool)
+    {
         return true;
     }
 }
 
 interface IERC721Receiver {
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external returns (bytes4);
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+        external
+        returns (bytes4);
 }
 
 contract MultiSigTest is Test {
@@ -131,46 +130,46 @@ contract MultiSigTest is Test {
     MockERC20 public mockToken;
     MockERC721 public mockNFT;
     MockVerifier public mockVerifier;
-    
+
     address public owner1 = address(0x1);
     address public owner2 = address(0x2);
     address public owner3 = address(0x3);
     address public nonOwner = address(0x4);
     address public recipient = address(0x5);
-    
+
     uint16 public constant PIN = 1234;
-    uint public constant REQUIRED = 2;
+    uint256 public constant REQUIRED = 2;
     bytes32 public pinHash;
     uint256 public constant SENDER_NONCE = 0; // Not used anymore but kept for proof structure
-    
-    event Confirmation(address indexed sender, uint indexed transactionId);
-    event Revocation(address indexed sender, uint indexed transactionId);
-    event Execution(uint transactionId, address indexed to, uint indexed amount);
-    event ExecutionFailure(uint indexed transactionId);
-    event Deposit(address sender, uint value);
+
+    event Confirmation(address indexed sender, uint256 indexed transactionId);
+    event Revocation(address indexed sender, uint256 indexed transactionId);
+    event Execution(uint256 transactionId, address indexed to, uint256 indexed amount);
+    event ExecutionFailure(uint256 indexed transactionId);
+    event Deposit(address sender, uint256 value);
     event OwnerAddition(address indexed owner);
     event OwnerRemoval(address indexed owner);
     event OwnerReplace(address indexed oldOwner, address indexed newOwner);
-    event RequirementChange(uint required);
-    
+    event RequirementChange(uint256 required);
+
     function setUp() public {
         mockVerifier = new MockVerifier();
-        
+
         address[] memory owners = new address[](3);
         owners[0] = owner1;
         owners[1] = owner2;
         owners[2] = owner3;
-        
+
         factory = new MSAFactory();
-        
+
         bytes32 salt = factory.generateSalt(owners, REQUIRED, pinHash, "TestMSA");
         multiSig = factory.newMSA{value: 10000000000}(owners, REQUIRED, pinHash, "TestMSA");
-        
+
         mockToken = new MockERC20();
         mockNFT = new MockERC721();
-        
+
         vm.deal(address(multiSig), 10 ether);
-        mockToken.transfer(address(multiSig), 1000 * 10**18);
+        mockToken.transfer(address(multiSig), 1000 * 10 ** 18);
         uint256 tokenId = mockNFT.mint(address(this));
         mockNFT.safeTransferFrom(address(this), address(multiSig), tokenId);
     }
@@ -198,9 +197,9 @@ contract MultiSigTest is Test {
     function test_Factory_ChangeFee() public {
         uint256 newFee = 2000000000000000;
         uint256 oldFee = factory.notaryFee();
-        
+
         factory.changeFee(newFee);
-        
+
         assertEq(factory.notaryFee(), newFee);
     }
 
@@ -216,15 +215,15 @@ contract MultiSigTest is Test {
         uint256 fee = factory.notaryFee();
         address[] memory owners = new address[](1);
         owners[0] = address(this);
-        
+
         // Need to send MORE than the fee (not equal) per the contract check
         factory.newMSA{value: fee + 1}(owners, 1, pinHash, "Test2");
-        
+
         uint256 initialBalance = address(this).balance;
         uint256 contractBalance = address(factory).balance;
-        
+
         factory.withdraw();
-        
+
         assertEq(address(factory).balance, 0);
         assertTrue(address(this).balance >= initialBalance); // Account for gas costs
     }
@@ -232,7 +231,7 @@ contract MultiSigTest is Test {
     function test_Receive() public {
         uint256 initialBalance = address(multiSig).balance;
         uint256 sendAmount = 1 ether;
-        
+
         (bool success,) = address(multiSig).call{value: sendAmount}("");
         assertTrue(success);
         assertEq(address(multiSig).balance, initialBalance + sendAmount);
@@ -240,13 +239,13 @@ contract MultiSigTest is Test {
 
     function test_SubmitTransaction() public {
         bytes memory data = abi.encodeWithSignature("transfer(address,uint256)", recipient, 1 ether);
-        
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransaction(recipient, 1 ether, data);
-        
+
         assertEq(txId, 0);
         assertEq(multiSig.transactionCount(), 1);
-        
+
         (address dest, uint256 value, bytes memory func, bool executed, uint256 id) = multiSig.transactions(txId);
         assertEq(dest, recipient);
         assertEq(value, 1 ether);
@@ -256,7 +255,7 @@ contract MultiSigTest is Test {
 
     function test_SubmitTransaction_RevertNotOwner() public {
         bytes memory data = "";
-        
+
         vm.prank(nonOwner);
         vm.expectRevert();
         multiSig.submitTransaction(recipient, 1 ether, data);
@@ -265,17 +264,17 @@ contract MultiSigTest is Test {
     function test_ConfirmTransaction() public {
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransaction(recipient, 1 ether, "");
-        
+
         vm.prank(owner2);
         multiSig.confirmTransaction(txId);
-        
+
         assertEq(multiSig.getConfirmationCount(txId), 2);
     }
 
     function test_ConfirmTransaction_RevertNotOwner() public {
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransaction(recipient, 1 ether, "");
-        
+
         vm.prank(nonOwner);
         vm.expectRevert();
         multiSig.confirmTransaction(txId);
@@ -283,33 +282,33 @@ contract MultiSigTest is Test {
 
     function test_Execute() public {
         uint256 initialBalance = recipient.balance;
-        
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransaction(recipient, 1 ether, "");
-        
+
         vm.prank(owner2);
         multiSig.confirmTransaction(txId);
-        
+
         vm.prank(owner1);
         multiSig.execute(txId);
-        
+
         assertEq(recipient.balance, initialBalance + 1 ether);
-        
-        (, , , bool executed, ) = multiSig.transactions(txId);
+
+        (,,, bool executed,) = multiSig.transactions(txId);
         assertTrue(executed);
     }
 
     function test_Execute_ReentrancyGuard() public {
         ReentrantContract reentrant = new ReentrantContract(address(multiSig));
-        
+
         vm.deal(address(multiSig), 10 ether);
-        
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransaction(address(reentrant), 1 ether, "");
-        
+
         vm.prank(owner2);
         multiSig.confirmTransaction(txId);
-        
+
         vm.expectRevert();
         reentrant.triggerExecute(txId);
     }
@@ -322,64 +321,65 @@ contract MultiSigTest is Test {
     }
 
     function test_SubmitTransferERC20() public {
-        uint256 transferAmount = 100 * 10**18;
-        
+        uint256 transferAmount = 100 * 10 ** 18;
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransferERC20(address(mockToken), recipient, transferAmount);
-        
+
         assertEq(txId, 0);
-        
-        (address dest, uint256 value, bytes memory func, , ) = multiSig.transactions(txId);
+
+        (address dest, uint256 value, bytes memory func,,) = multiSig.transactions(txId);
         assertEq(dest, address(mockToken));
         assertEq(value, 0);
-        
+
         bytes memory expectedData = abi.encodeWithSelector(mockToken.transfer.selector, recipient, transferAmount);
         assertEq(func, expectedData);
     }
 
     function test_ExecuteERC20Transfer() public {
-        uint256 transferAmount = 100 * 10**18;
+        uint256 transferAmount = 100 * 10 ** 18;
         uint256 initialBalance = mockToken.balanceOf(recipient);
-        
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransferERC20(address(mockToken), recipient, transferAmount);
-        
+
         vm.prank(owner2);
         multiSig.confirmTransaction(txId);
-        
+
         vm.prank(owner1);
         multiSig.execute(txId);
-        
+
         assertEq(mockToken.balanceOf(recipient), initialBalance + transferAmount);
-        assertEq(mockToken.balanceOf(address(multiSig)), 1000 * 10**18 - transferAmount);
+        assertEq(mockToken.balanceOf(address(multiSig)), 1000 * 10 ** 18 - transferAmount);
     }
 
     function test_SubmitTransferNFT() public {
         uint256 tokenId = 1;
-        
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransferNFT(address(mockNFT), recipient, tokenId);
-        
-        (address dest, uint256 value, bytes memory func, , ) = multiSig.transactions(txId);
+
+        (address dest, uint256 value, bytes memory func,,) = multiSig.transactions(txId);
         assertEq(dest, address(mockNFT));
         assertEq(value, 0);
-        
-        bytes memory expectedData = abi.encodeWithSelector(mockNFT.safeTransferFrom.selector, address(multiSig), recipient, tokenId);
+
+        bytes memory expectedData =
+            abi.encodeWithSelector(mockNFT.safeTransferFrom.selector, address(multiSig), recipient, tokenId);
         assertEq(func, expectedData);
     }
 
     function test_ExecuteNFTTransfer() public {
         uint256 tokenId = 1;
-        
+
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransferNFT(address(mockNFT), recipient, tokenId);
-        
+
         vm.prank(owner2);
         multiSig.confirmTransaction(txId);
-        
+
         vm.prank(owner1);
         multiSig.execute(txId);
-        
+
         assertEq(mockNFT.ownerOf(tokenId), recipient);
         assertEq(mockNFT.balanceOf(address(multiSig)), 0);
     }
@@ -395,10 +395,10 @@ contract MultiSigTest is Test {
     function test_GetConfirmations() public {
         vm.prank(owner1);
         uint256 txId = multiSig.submitTransaction(recipient, 1 ether, "");
-        
+
         vm.prank(owner2);
         multiSig.confirmTransaction(txId);
-        
+
         address[] memory confirmations = multiSig.getConfirmations(txId);
         assertEq(confirmations.length, 2);
         assertEq(confirmations[0], owner1);
@@ -410,15 +410,15 @@ contract MultiSigTest is Test {
 
 contract ReentrantContract {
     MultiSigAccount private multiSig;
-    
+
     constructor(address _multiSig) {
         multiSig = MultiSigAccount(payable(_multiSig));
     }
-    
+
     function triggerExecute(uint256 txId) external {
         multiSig.execute(txId);
     }
-    
+
     receive() external payable {
         if (address(multiSig).balance >= 1 ether) {
             multiSig.execute(0);

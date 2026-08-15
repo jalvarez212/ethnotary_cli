@@ -10,54 +10,56 @@ interface IERC20 {
 
 interface IUniswapV2Router02 {
     function swapExactTokensForTokens(
-        uint amountIn,
-        uint amountOutMin,
+        uint256 amountIn,
+        uint256 amountOutMin,
         address[] calldata path,
         address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
     function swapTokensForExactTokens(
-        uint amountOut,
-        uint amountInMax,
+        uint256 amountOut,
+        uint256 amountInMax,
         address[] calldata path,
         address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
-    function swapExactETHForTokens(
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external payable returns (uint[] memory amounts);
+    function swapExactETHForTokens(uint256 amountOutMin, address[] calldata path, address to, uint256 deadline)
+        external
+        payable
+        returns (uint256[] memory amounts);
 
     function swapTokensForExactETH(
-        uint amountOut,
-        uint amountInMax,
+        uint256 amountOut,
+        uint256 amountInMax,
         address[] calldata path,
         address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
     function swapExactTokensForETH(
-        uint amountIn,
-        uint amountOutMin,
+        uint256 amountIn,
+        uint256 amountOutMin,
         address[] calldata path,
         address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
-    function swapETHForExactTokens(
-        uint amountOut,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external payable returns (uint[] memory amounts);
+    function swapETHForExactTokens(uint256 amountOut, address[] calldata path, address to, uint256 deadline)
+        external
+        payable
+        returns (uint256[] memory amounts);
 
-    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
-    
-    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
+    function getAmountsOut(uint256 amountIn, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts);
+
+    function getAmountsIn(uint256 amountOut, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts);
 }
 
 /**
@@ -66,21 +68,12 @@ interface IUniswapV2Router02 {
  * @notice This contract is designed to be called by a MultiSig contract
  */
 contract UniswapSwapModule {
-    
     event SwapExecuted(
-        address indexed caller,
-        address indexed tokenIn,
-        address indexed tokenOut,
-        uint amountIn,
-        uint amountOut
+        address indexed caller, address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut
     );
 
     event ETHSwapExecuted(
-        address indexed caller,
-        bool isETHIn,
-        address indexed token,
-        uint ethAmount,
-        uint tokenAmount
+        address indexed caller, bool isETHIn, address indexed token, uint256 ethAmount, uint256 tokenAmount
     );
 
     /**
@@ -94,20 +87,20 @@ contract UniswapSwapModule {
      */
     function swapExactTokensForTokens(
         address routerAddress,
-        uint amountIn,
-        uint amountOutMin,
+        uint256 amountIn,
+        uint256 amountOutMin,
         address[] calldata path,
-        uint deadline
-    ) external returns (uint[] memory amounts) {
+        uint256 deadline
+    ) external returns (uint256[] memory amounts) {
         require(path.length >= 2, "Invalid path");
         require(deadline >= block.timestamp, "Deadline expired");
-        
+
         // Transfer tokens from caller to this contract
         IERC20(path[0]).transferFrom(msg.sender, address(this), amountIn);
-        
+
         // Approve router to spend tokens
         IERC20(path[0]).approve(routerAddress, amountIn);
-        
+
         // Execute swap
         amounts = IUniswapV2Router02(routerAddress).swapExactTokensForTokens(
             amountIn,
@@ -116,9 +109,9 @@ contract UniswapSwapModule {
             msg.sender, // Send output tokens back to caller
             deadline
         );
-        
+
         emit SwapExecuted(msg.sender, path[0], path[path.length - 1], amountIn, amounts[amounts.length - 1]);
-        
+
         return amounts;
     }
 
@@ -132,14 +125,14 @@ contract UniswapSwapModule {
      */
     function swapExactETHForTokens(
         address routerAddress,
-        uint amountOutMin,
+        uint256 amountOutMin,
         address[] calldata path,
-        uint deadline
-    ) external payable returns (uint[] memory amounts) {
+        uint256 deadline
+    ) external payable returns (uint256[] memory amounts) {
         require(path.length >= 2, "Invalid path");
         require(deadline >= block.timestamp, "Deadline expired");
         require(msg.value > 0, "No ETH sent");
-        
+
         // Execute swap
         amounts = IUniswapV2Router02(routerAddress).swapExactETHForTokens{value: msg.value}(
             amountOutMin,
@@ -147,9 +140,9 @@ contract UniswapSwapModule {
             msg.sender, // Send output tokens back to caller
             deadline
         );
-        
+
         emit ETHSwapExecuted(msg.sender, true, path[path.length - 1], msg.value, amounts[amounts.length - 1]);
-        
+
         return amounts;
     }
 
@@ -164,20 +157,20 @@ contract UniswapSwapModule {
      */
     function swapExactTokensForETH(
         address routerAddress,
-        uint amountIn,
-        uint amountOutMin,
+        uint256 amountIn,
+        uint256 amountOutMin,
         address[] calldata path,
-        uint deadline
-    ) external returns (uint[] memory amounts) {
+        uint256 deadline
+    ) external returns (uint256[] memory amounts) {
         require(path.length >= 2, "Invalid path");
         require(deadline >= block.timestamp, "Deadline expired");
-        
+
         // Transfer tokens from caller to this contract
         IERC20(path[0]).transferFrom(msg.sender, address(this), amountIn);
-        
+
         // Approve router to spend tokens
         IERC20(path[0]).approve(routerAddress, amountIn);
-        
+
         // Execute swap
         amounts = IUniswapV2Router02(routerAddress).swapExactTokensForETH(
             amountIn,
@@ -186,9 +179,9 @@ contract UniswapSwapModule {
             msg.sender, // Send ETH back to caller
             deadline
         );
-        
+
         emit ETHSwapExecuted(msg.sender, false, path[0], amounts[amounts.length - 1], amountIn);
-        
+
         return amounts;
     }
 
@@ -203,20 +196,20 @@ contract UniswapSwapModule {
      */
     function swapTokensForExactTokens(
         address routerAddress,
-        uint amountOut,
-        uint amountInMax,
+        uint256 amountOut,
+        uint256 amountInMax,
         address[] calldata path,
-        uint deadline
-    ) external returns (uint[] memory amounts) {
+        uint256 deadline
+    ) external returns (uint256[] memory amounts) {
         require(path.length >= 2, "Invalid path");
         require(deadline >= block.timestamp, "Deadline expired");
-        
+
         // Transfer max tokens from caller to this contract
         IERC20(path[0]).transferFrom(msg.sender, address(this), amountInMax);
-        
+
         // Approve router to spend tokens
         IERC20(path[0]).approve(routerAddress, amountInMax);
-        
+
         // Execute swap
         amounts = IUniswapV2Router02(routerAddress).swapTokensForExactTokens(
             amountOut,
@@ -225,15 +218,15 @@ contract UniswapSwapModule {
             msg.sender, // Send output tokens back to caller
             deadline
         );
-        
+
         // Refund unused input tokens
-        uint amountUsed = amounts[0];
+        uint256 amountUsed = amounts[0];
         if (amountInMax > amountUsed) {
             IERC20(path[0]).transfer(msg.sender, amountInMax - amountUsed);
         }
-        
+
         emit SwapExecuted(msg.sender, path[0], path[path.length - 1], amounts[0], amountOut);
-        
+
         return amounts;
     }
 
@@ -244,11 +237,11 @@ contract UniswapSwapModule {
      * @param path Array of token addresses for swap path
      * @return amounts Expected amounts for each step in the path
      */
-    function getAmountsOut(
-        address routerAddress,
-        uint amountIn,
-        address[] calldata path
-    ) external view returns (uint[] memory amounts) {
+    function getAmountsOut(address routerAddress, uint256 amountIn, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts)
+    {
         return IUniswapV2Router02(routerAddress).getAmountsOut(amountIn, path);
     }
 
@@ -259,11 +252,11 @@ contract UniswapSwapModule {
      * @param path Array of token addresses for swap path
      * @return amounts Required amounts for each step in the path
      */
-    function getAmountsIn(
-        address routerAddress,
-        uint amountOut,
-        address[] calldata path
-    ) external view returns (uint[] memory amounts) {
+    function getAmountsIn(address routerAddress, uint256 amountOut, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts)
+    {
         return IUniswapV2Router02(routerAddress).getAmountsIn(amountOut, path);
     }
 

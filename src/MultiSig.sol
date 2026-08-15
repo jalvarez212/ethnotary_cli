@@ -116,12 +116,9 @@ interface IERC721Receiver {
      *
      * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
      */
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external returns (bytes4);
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+        external
+        returns (bytes4);
 }
 
 interface IERC165 {
@@ -180,7 +177,6 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-  
     function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
     /**
@@ -257,8 +253,8 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     IVerifier public pinVerifier;
     uint256 public pinNonce;
 
-    uint public constant MAX_OWNER_COUNT = 13;
-    
+    uint256 public constant MAX_OWNER_COUNT = 13;
+
     // Reentrancy guard
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;
@@ -284,74 +280,50 @@ contract MultiSigAccount is IEthnotaryMultiSig {
         bool isNative;
     }
 
-    mapping(uint => Transaction) public transactions;
-    mapping(uint => mapping(address => bool)) public confirmations;
+    mapping(uint256 => Transaction) public transactions;
+    mapping(uint256 => mapping(address => bool)) public confirmations;
     mapping(address => bool) public isOwner;
-    mapping(uint => address) public swapTransactions; // Maps txId to swap module address
-    mapping(uint => TransactionType) public transactionTypes; // Maps txId to transaction type
-    mapping(uint => CashOutData) public cashOutTransactions; // Maps transferTxId to cash-out data
+    mapping(uint256 => address) public swapTransactions; // Maps txId to swap module address
+    mapping(uint256 => TransactionType) public transactionTypes; // Maps txId to transaction type
+    mapping(uint256 => CashOutData) public cashOutTransactions; // Maps transferTxId to cash-out data
     address[] public owners;
-    uint public required;
-    uint public transactionCount;
+    uint256 public required;
+    uint256 public transactionCount;
 
     struct Transaction {
         address dest;
-        uint value;
+        uint256 value;
         bytes func;
         bool executed;
-        uint id;
+        uint256 id;
     }
 
     //Multi Sig Events
 
-    event Confirmation(address indexed sender, uint indexed transactionId);
-    event Revocation(address indexed sender, uint indexed transactionId);
-    event Submission(
-        uint indexed transactionId,
-        address dest,
-        uint256 value,
-        bytes func
-    );
+    event Confirmation(address indexed sender, uint256 indexed transactionId);
+    event Revocation(address indexed sender, uint256 indexed transactionId);
+    event Submission(uint256 indexed transactionId, address dest, uint256 value, bytes func);
 
-    event ExecutionFailure(uint indexed transactionId);
-    event Deposit(address sender, uint value);
+    event ExecutionFailure(uint256 indexed transactionId);
+    event Deposit(address sender, uint256 value);
     event OwnerAddition(address indexed owner);
     event OwnerRemoval(address indexed owner);
     event OwnerReplace(address indexed oldOwner, address indexed newOwner);
-    event RequirementChange(uint required);
-    event Delete(uint indexed transactionId, address indexed sender);
-    event NftReceived(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes data
-    );
-    event Swap(
-        uint indexed transactionId,
-        address indexed swapModule,
-        address indexed executor,
-        uint256 ethValue
-    );
+    event RequirementChange(uint256 required);
+    event Delete(uint256 indexed transactionId, address indexed sender);
+    event NftReceived(address operator, address from, uint256 tokenId, bytes data);
+    event Swap(uint256 indexed transactionId, address indexed swapModule, address indexed executor, uint256 ethValue);
     event TokenTransfer(
-        uint indexed transactionId,
+        uint256 indexed transactionId,
         address indexed assetContract,
         address indexed to,
         uint256 amountOrTokenId,
         address executor,
         bool isNFT
     );
-    event NativeTransfer(
-        uint indexed transactionId,
-        address indexed to,
-        uint256 amount,
-        address executor
-    );
+    event NativeTransfer(uint256 indexed transactionId, address indexed to, uint256 amount, address executor);
     event ContractInteraction(
-        uint indexed transactionId,
-        address indexed target,
-        address indexed executor,
-        uint256 value,
-        bytes data
+        uint256 indexed transactionId, address indexed target, address indexed executor, uint256 value, bytes data
     );
     event CashOut(
         uint256 indexed approvalTxId,
@@ -380,22 +352,22 @@ contract MultiSigAccount is IEthnotaryMultiSig {
         _;
     }
 
-    modifier transactionExists(uint transactionId) {
+    modifier transactionExists(uint256 transactionId) {
         if (transactions[transactionId].dest == address(0)) revert TransactionDoesNotExist();
         _;
     }
 
-    modifier confirmed(uint transactionId, address accountOwner) {
+    modifier confirmed(uint256 transactionId, address accountOwner) {
         if (!confirmations[transactionId][accountOwner]) revert NotYetConfirmed();
         _;
     }
 
-    modifier notConfirmed(uint transactionId, address accountOwner) {
+    modifier notConfirmed(uint256 transactionId, address accountOwner) {
         if (confirmations[transactionId][accountOwner]) revert AlreadyConfirmed();
         _;
     }
 
-    modifier notExecuted(uint transactionId) {
+    modifier notExecuted(uint256 transactionId) {
         if (transactions[transactionId].executed) revert AlreadyExecuted();
         _;
     }
@@ -405,20 +377,16 @@ contract MultiSigAccount is IEthnotaryMultiSig {
         _;
     }
 
-    modifier verifyPinProof(
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC
-    ) {
+    modifier verifyPinProof(uint256[2] calldata _pA, uint256[2][2] calldata _pB, uint256[2] calldata _pC) {
         // [pinHash, sender] - nonce removed for better UX
         // msg.sender binding prevents proof replay attacks
-        uint[2] memory pubSignals = [uint256(pinHash), uint256(uint160(msg.sender))];
+        uint256[2] memory pubSignals = [uint256(pinHash), uint256(uint160(msg.sender))];
         bool valid = pinVerifier.verifyProof(_pA, _pB, _pC, pubSignals);
         if (!valid) revert IncorrectPin();
         _;
     }
 
-    modifier validRequirement(uint ownerCount, uint _required) {
+    modifier validRequirement(uint256 ownerCount, uint256 _required) {
         if (ownerCount > MAX_OWNER_COUNT || _required > ownerCount || _required == 0 || ownerCount == 0) {
             revert InvalidRequirement();
         }
@@ -439,12 +407,12 @@ contract MultiSigAccount is IEthnotaryMultiSig {
 
     constructor(
         address[] memory _owners,
-        uint _required,
+        uint256 _required,
         bytes32 _pinHash,
         address _pinVerifier,
         string memory _name
     ) payable validRequirement(_owners.length, _required) {
-        for (uint i = 0; i < _owners.length; i++) {
+        for (uint256 i = 0; i < _owners.length; i++) {
             require(!isOwner[_owners[i]] && _owners[i] != address(0));
             isOwner[_owners[i]] = true;
         }
@@ -479,12 +447,10 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     }
 
     // This function is called by the ERC721 contract when an NFT is transferred to this contract.
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes memory data
-    ) public returns (bytes4) {
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data)
+        public
+        returns (bytes4)
+    {
         // Emit an event noting that an NFT has been received
         emit NftReceived(operator, from, tokenId, data);
 
@@ -497,9 +463,9 @@ contract MultiSigAccount is IEthnotaryMultiSig {
 
     function addOwner(
         address accountOwner,
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC
     )
         public
         verifyPinProof(_pA, _pB, _pC)
@@ -515,17 +481,18 @@ contract MultiSigAccount is IEthnotaryMultiSig {
 
     function removeOwner(
         address accountOwner,
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC
     ) public verifyPinProof(_pA, _pB, _pC) ownerExists(accountOwner) {
         _requireFromOwner();
         isOwner[accountOwner] = false;
-        for (uint i = 0; i < owners.length - 1; i++)
+        for (uint256 i = 0; i < owners.length - 1; i++) {
             if (owners[i] == accountOwner) {
                 owners[i] = owners[owners.length - 1];
                 break;
             }
+        }
         owners.pop();
         if (required > owners.length) {
             required = owners.length;
@@ -537,34 +504,29 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     function replaceOwner(
         address accountOwner,
         address newOwner,
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC
-    )
-        public
-        verifyPinProof(_pA, _pB, _pC)
-        ownerExists(accountOwner)
-        ownerDoesNotExist(newOwner)
-    {
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC
+    ) public verifyPinProof(_pA, _pB, _pC) ownerExists(accountOwner) ownerDoesNotExist(newOwner) {
         // P1 FIX: Validate newOwner is not null
         if (newOwner == address(0)) revert NullAddress();
         _requireFromOwner();
-        for (uint i = 0; i < owners.length; i++)
+        for (uint256 i = 0; i < owners.length; i++) {
             if (owners[i] == accountOwner) {
                 owners[i] = newOwner;
                 break;
             }
+        }
         isOwner[accountOwner] = false;
         isOwner[newOwner] = true;
         emit OwnerReplace(accountOwner, newOwner);
     }
 
-
     function changeRequirement(
-        uint _required,
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC
+        uint256 _required,
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC
     ) public verifyPinProof(_pA, _pB, _pC) validRequirement(owners.length, _required) {
         _requireFromOwner();
         required = _required;
@@ -574,7 +536,7 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     /**
      * @dev Execute a confirmed transaction
      * @param transactionId Transaction ID to execute
-     * 
+     *
      * @notice This function handles all transaction types:
      * - Swap: Emits Swap event with swap module address
      * - TokenTransfer: Emits TokenTransfer event (ERC20 or NFT)
@@ -582,62 +544,59 @@ contract MultiSigAccount is IEthnotaryMultiSig {
      * - ContractInteraction: Emits ContractInteraction event
      * - CashOut: Emits CashOut event with off-ramp details
      * - Unknown: Emits ContractInteraction event as fallback
-     * 
+     *
      * All events are emitted BEFORE the external call (Checks-Effects-Interactions pattern)
      */
-    function execute(uint transactionId) public nonReentrant {
+    function execute(uint256 transactionId) public nonReentrant {
         // CHECKS
         _requireFromOwner();
         if (!isConfirmed(transactionId)) revert NotConfirmed();
         if (transactions[transactionId].executed) revert AlreadyExecuted();
 
         Transaction storage txn = transactions[transactionId];
-        
+
         // EFFECTS - Update all state before external calls
         txn.executed = true;
-        
+
         // Cache values for events
         address dest = txn.dest;
         uint256 value = txn.value;
         bytes memory func = txn.func;
         TransactionType txType = transactionTypes[transactionId];
-        
 
-        
         // Emit type-specific event based on transaction type
         if (txType == TransactionType.Swap) {
             // Swap transaction via UniswapSwapModule or similar
             emit Swap(transactionId, swapTransactions[transactionId], msg.sender, value);
-            
         } else if (txType == TransactionType.TokenTransfer) {
             // Token transfer (ERC20 or NFT)
             if (func.length >= 68) {
                 address to;
                 uint256 amountOrTokenId;
                 bool isNFT = func.length >= 100; // NFT transfers have more data
-                
+
                 if (isNFT) {
                     // NFT: safeTransferFrom(address from, address to, uint256 tokenId)
                     // P1 FIX: Improved bounds checking with cached length
                     if (func.length < 100) revert InvalidNFTData();
-                    
+
                     assembly {
                         // func layout: [length:32][selector:4][from:32][to:32][tokenId:32]...
                         let dataPtr := add(func, 32) // Skip length prefix
-                        let dataLen := mload(func)   // Cache data length
-                        
+                        let dataLen := mload(func) // Cache data length
+
                         // Double-check bounds before reading
                         if lt(dataLen, 100) {
                             mstore(0x00, 0x8b891d3d00000000000000000000000000000000000000000000000000000000)
                             revert(0x00, 0x04)
                         }
-                        
+
                         // Read 'to' address (offset 36: 4 selector + 32 from)
                         to := mload(add(dataPtr, 36))
-                        
+
                         // Read tokenId (offset 68: 4 selector + 32 from + 32 to)
                         amountOrTokenId := mload(add(dataPtr, 68))
-                        
+
                         // Validate 'to' is not zero
                         if iszero(to) {
                             mstore(0x00, 0x7d6a0c6e00000000000000000000000000000000000000000000000000000000)
@@ -648,23 +607,23 @@ contract MultiSigAccount is IEthnotaryMultiSig {
                     // ERC20: transfer(address to, uint256 amount)
                     // P1 FIX: Improved bounds checking with cached length
                     if (func.length < 68) revert InvalidERC20Data();
-                    
+
                     assembly {
                         let dataPtr := add(func, 32) // Skip length prefix
-                        let dataLen := mload(func)   // Cache data length
-                        
+                        let dataLen := mload(func) // Cache data length
+
                         // Double-check bounds before reading
                         if lt(dataLen, 68) {
                             mstore(0x00, 0x6e9a8b0f00000000000000000000000000000000000000000000000000000000)
                             revert(0x00, 0x04)
                         }
-                        
+
                         // Read 'to' address (offset 4: 4 selector)
                         to := mload(add(dataPtr, 4))
-                        
+
                         // Read amount (offset 36: 4 selector + 32 to)
                         amountOrTokenId := mload(add(dataPtr, 36))
-                        
+
                         // Validate 'to' is not zero
                         if iszero(to) {
                             mstore(0x00, 0x7d6a0c6e00000000000000000000000000000000000000000000000000000000)
@@ -672,19 +631,16 @@ contract MultiSigAccount is IEthnotaryMultiSig {
                         }
                     }
                 }
-                
+
                 if (to == address(0)) revert InvalidRecipient();
                 emit TokenTransfer(transactionId, dest, to, amountOrTokenId, msg.sender, isNFT);
             }
-            
         } else if (txType == TransactionType.NativeTransfer) {
             // Native token transfer (ETH, MATIC, etc.)
             emit NativeTransfer(transactionId, dest, value, msg.sender);
-            
         } else if (txType == TransactionType.ContractInteraction) {
             // Generic contract interaction
             emit ContractInteraction(transactionId, dest, msg.sender, value, func);
-            
         } else if (txType == TransactionType.CashOut) {
             // Cash-out transaction (MoonPay, Ramp, etc.)
             CashOutData memory cashOutData = cashOutTransactions[transactionId];
@@ -697,27 +653,22 @@ contract MultiSigAccount is IEthnotaryMultiSig {
                 msg.sender,
                 cashOutData.isNative
             );
-            
         } else {
             // Unknown type - emit ContractInteraction as fallback
             // This handles edge cases where type wasn't set properly
             emit ContractInteraction(transactionId, dest, msg.sender, value, func);
         }
-        
+
         // INTERACTIONS - External call last
         _call(dest, value, func);
     }
 
-    function submitTransaction(
-        address dest,
-        uint256 value,
-        bytes memory func
-    ) public returns (uint transactionId) {
+    function submitTransaction(address dest, uint256 value, bytes memory func) public returns (uint256 transactionId) {
         _requireFromOwner();
         transactionId = addTransaction(dest, value, func);
         confirmations[transactionId][msg.sender] = true;
         emit Submission(transactionId, dest, value, func);
-        
+
         // Auto-detect transaction type if not already set
         if (transactionTypes[transactionId] == TransactionType.Unknown) {
             if (value > 0 && func.length == 0) {
@@ -730,9 +681,7 @@ contract MultiSigAccount is IEthnotaryMultiSig {
         }
     }
 
-    function confirmTransaction(
-        uint transactionId
-    )
+    function confirmTransaction(uint256 transactionId)
         public
         ownerExists(msg.sender)
         transactionExists(transactionId)
@@ -742,9 +691,7 @@ contract MultiSigAccount is IEthnotaryMultiSig {
         emit Confirmation(msg.sender, transactionId);
     }
 
-    function revokeConfirmation(
-        uint transactionId
-    )
+    function revokeConfirmation(uint256 transactionId)
         public
         ownerExists(msg.sender)
         confirmed(transactionId, msg.sender)
@@ -755,10 +702,10 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     }
 
     function deleteTransaction(
-        uint transactionId,
-        uint[2] calldata _pA,
-        uint[2][2] calldata _pB,
-        uint[2] calldata _pC
+        uint256 transactionId,
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC
     )
         public
         ownerExists(msg.sender)
@@ -768,51 +715,50 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     {
         // P0 FIX: Only allow deletion if transaction has no confirmations OR caller is the only confirmator
         // This prevents one owner from deleting a transaction that others have confirmed
-        uint confirmationCount = 0;
+        uint256 confirmationCount = 0;
         bool callerConfirmed = confirmations[transactionId][msg.sender];
-        for (uint i = 0; i < owners.length; i++) {
+        for (uint256 i = 0; i < owners.length; i++) {
             if (confirmations[transactionId][owners[i]]) {
                 confirmationCount++;
             }
         }
-        
+
         // Only allow deletion if: no confirmations, or only the caller has confirmed
         if (confirmationCount > 1 || (confirmationCount == 1 && !callerConfirmed)) {
             revert("Cannot delete transaction with other owner confirmations");
         }
-        
+
         // Clear all confirmations for this transaction
-        for (uint i = 0; i < owners.length; i++) {
+        for (uint256 i = 0; i < owners.length; i++) {
             confirmations[transactionId][owners[i]] = false;
         }
-        
+
         // Delete the transaction struct from memory
         delete transactions[transactionId];
-        
+
         emit Delete(transactionId, msg.sender);
     }
 
-
-    function isConfirmed(uint transactionId) public view returns (bool) {
-        uint count = 0;
-        for (uint i = 0; i < owners.length; i++) {
+    function isConfirmed(uint256 transactionId) public view returns (bool) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < owners.length; i++) {
             if (confirmations[transactionId][owners[i]]) count += 1;
             if (count == required) return true;
         }
         return false;
     }
 
-
     function submitTransferNFT(address nftContractAddress, address to, uint256 tokenId) public returns (uint256) {
-        _requireFromOwner();    
-        bytes memory data = abi.encodeWithSelector(IERC721(nftContractAddress).safeTransferFrom.selector, address(this), to, tokenId);
+        _requireFromOwner();
+        bytes memory data =
+            abi.encodeWithSelector(IERC721(nftContractAddress).safeTransferFrom.selector, address(this), to, tokenId);
         uint256 transactionId = submitTransaction(nftContractAddress, 0, data);
         transactionTypes[transactionId] = TransactionType.TokenTransfer;
         return transactionId;
     }
 
     function submitTransferERC20(address erc20ContractAddress, address to, uint256 amount) public returns (uint256) {
-        _requireFromOwner();    
+        _requireFromOwner();
         bytes memory data = abi.encodeWithSelector(IERC20(erc20ContractAddress).transfer.selector, to, amount);
         uint256 transactionId = submitTransaction(erc20ContractAddress, 0, data);
         transactionTypes[transactionId] = TransactionType.TokenTransfer;
@@ -844,12 +790,12 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     //  * @param amount Amount to cash out
     //  * @return approvalTxId Transaction ID for token approval (0 if native token)
     //  * @return transferTxId Transaction ID for token transfer
-    //  * 
+    //  *
     //  * @notice For ERC20 tokens, this returns TWO transaction IDs:
     //  * 1. approvalTxId - Must be confirmed and executed first
     //  * 2. transferTxId - Must be confirmed and executed second
     //  * Both transactions must succeed for cash-out to work.
-    //  * 
+    //  *
     //  * For native tokens (ETH), approvalTxId will be 0.
     //  */
     // function submitCashOut(
@@ -860,9 +806,9 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     //     _requireFromOwner();
     //     if (depositAddress == address(0)) revert InvalidDepositAddress();
     //     if (amount == 0) revert InvalidAmount();
-        
+
     //     bool isNative = tokenAddress == address(0);
-        
+
     //     if (isNative) {
     //         // Native token cash-out (ETH, MATIC, etc.)
     //         // No approval needed, just transfer
@@ -879,7 +825,7 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     //         );
     //         approvalTxId = submitTransaction(tokenAddress, 0, approveData);
     //         transactionTypes[approvalTxId] = TransactionType.ContractInteraction;
-            
+
     //         // Step 2: Transfer tokens to deposit address
     //         bytes memory transferData = abi.encodeWithSelector(
     //             IERC20(tokenAddress).transfer.selector,
@@ -889,7 +835,7 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     //         transferTxId = submitTransaction(tokenAddress, 0, transferData);
     //         transactionTypes[transferTxId] = TransactionType.CashOut;
     //     }
-        
+
     //     // Store cash-out data for event emission during execution
     //     cashOutTransactions[transferTxId] = CashOutData({
     //         approvalTxId: approvalTxId,
@@ -899,56 +845,50 @@ contract MultiSigAccount is IEthnotaryMultiSig {
     //         amount: amount,
     //         isNative: isNative
     //     });
-        
+
     //     return (approvalTxId, transferTxId);
     // }
 
-    function addTransaction(
-        address dest,
-        uint256 value,
-        bytes memory func
-    ) internal notNull(dest) returns (uint transactionId) {
+    function addTransaction(address dest, uint256 value, bytes memory func)
+        internal
+        notNull(dest)
+        returns (uint256 transactionId)
+    {
         transactionId = transactionCount;
-        transactions[transactionId] = Transaction({
-            dest: dest,
-            value: value,
-            func: func,
-            executed: false,
-            id: transactionId
-        });
+        transactions[transactionId] =
+            Transaction({dest: dest, value: value, func: func, executed: false, id: transactionId});
         transactionCount += 1;
         //i don't think this event is needed or find a way to only call one of confirm or submit
     }
 
-    function getConfirmationCount(
-        uint transactionId
-    ) public view returns (uint count) {
-        for (uint i = 0; i < owners.length; i++)
+    function getConfirmationCount(uint256 transactionId) public view returns (uint256 count) {
+        for (uint256 i = 0; i < owners.length; i++) {
             if (confirmations[transactionId][owners[i]]) count += 1;
+        }
     }
 
     function getOwners() public view returns (address[] memory) {
         return owners;
     }
 
-    function getConfirmations(
-        uint transactionId
-    ) public view returns (address[] memory _confirmations) {
+    function getConfirmations(uint256 transactionId) public view returns (address[] memory _confirmations) {
         address[] memory confirmationsTemp = new address[](owners.length);
-        uint count = 0;
-        uint i;
-        for (i = 0; i < owners.length; i++)
+        uint256 count = 0;
+        uint256 i;
+        for (i = 0; i < owners.length; i++) {
             if (confirmations[transactionId][owners[i]]) {
                 confirmationsTemp[count] = owners[i];
                 count += 1;
             }
+        }
         _confirmations = new address[](count);
-        for (i = 0; i < count; i++) _confirmations[i] = confirmationsTemp[i];
+        for (i = 0; i < count; i++) {
+            _confirmations[i] = confirmationsTemp[i];
+        }
     }
 }
 
 contract MSAFactory {
-
     uint256 public notaryFee = 9999999999;
     address payable public owner;
     address public constant pinVerifier = 0x65ee46C4d21405f4a4C8e9d0F8a3832c1B885ab4;
@@ -956,8 +896,7 @@ contract MSAFactory {
     event NewMSACreated(address indexed msaAddress);
     event FeeUpdated(uint256 oldFee, uint256 newFee);
 
-    receive() external payable {
-    }
+    receive() external payable {}
 
     constructor() {
         owner = payable(msg.sender);
@@ -975,8 +914,8 @@ contract MSAFactory {
     }
 
     function withdraw() public onlyOwner {
-        uint balance = address(this).balance;
-        (bool success, ) = payable(msg.sender).call{value: balance}("");
+        uint256 balance = address(this).balance;
+        (bool success,) = payable(msg.sender).call{value: balance}("");
         if (!success) revert WithdrawalFailed();
     }
 
@@ -988,7 +927,11 @@ contract MSAFactory {
      * @param _name Name of the multisig account
      * @return salt The generated salt
      */
-    function generateSalt(address[] calldata _owners, uint _required, bytes32 _pinHash, string calldata _name) public pure returns (bytes32 salt) {
+    function generateSalt(address[] calldata _owners, uint256 _required, bytes32 _pinHash, string calldata _name)
+        public
+        pure
+        returns (bytes32 salt)
+    {
         salt = keccak256(abi.encodePacked(_owners, _required, _pinHash, _name));
     }
 
@@ -1000,22 +943,18 @@ contract MSAFactory {
      * @param _name Name of the multisig account
      * @return predictedAddress The predicted address
      */
-    function predictMSAAddress(address[] calldata _owners, uint _required, bytes32 _pinHash, string calldata _name) external view returns (address predictedAddress) {
+    function predictMSAAddress(address[] calldata _owners, uint256 _required, bytes32 _pinHash, string calldata _name)
+        external
+        view
+        returns (address predictedAddress)
+    {
         bytes32 salt = generateSalt(_owners, _required, _pinHash, _name);
         bytes memory bytecode = abi.encodePacked(
-            type(MultiSigAccount).creationCode,
-            abi.encode(_owners, _required, _pinHash, pinVerifier, _name)
+            type(MultiSigAccount).creationCode, abi.encode(_owners, _required, _pinHash, pinVerifier, _name)
         );
-        
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                bytes1(0xff),
-                address(this),
-                salt,
-                keccak256(bytecode)
-            )
-        );
-        
+
+        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(bytecode)));
+
         predictedAddress = address(uint160(uint256(hash)));
     }
 
@@ -1027,11 +966,15 @@ contract MSAFactory {
      * @param _name Name of the multisig account
      * @return instance The deployed MultiSigAccount
      */
-    function newMSA(address[] calldata _owners, uint _required, bytes32 _pinHash, string calldata _name) payable public returns (MultiSigAccount instance) {
+    function newMSA(address[] calldata _owners, uint256 _required, bytes32 _pinHash, string calldata _name)
+        public
+        payable
+        returns (MultiSigAccount instance)
+    {
         if (msg.value <= notaryFee) revert InsufficientFee();
 
         bytes32 salt = generateSalt(_owners, _required, _pinHash, _name);
-        
+
         // Check if already deployed
         address predicted = this.predictMSAAddress(_owners, _required, _pinHash, _name);
         uint256 size;
@@ -1041,20 +984,18 @@ contract MSAFactory {
         if (size != 0) revert AlreadyDeployed();
 
         bytes memory bytecode = abi.encodePacked(
-            type(MultiSigAccount).creationCode,
-            abi.encode(_owners, _required, _pinHash, pinVerifier, _name)
+            type(MultiSigAccount).creationCode, abi.encode(_owners, _required, _pinHash, pinVerifier, _name)
         );
 
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
         }
-        
+
         if (deployedAddress == address(0)) revert DeploymentFailed();
         if (deployedAddress != predicted) revert AddressMismatch();
 
         instance = MultiSigAccount(payable(deployedAddress));
         emit NewMSACreated(deployedAddress);
     }
-    
 }

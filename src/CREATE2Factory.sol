@@ -18,9 +18,9 @@ contract CREATE2Factory {
         assembly {
             deployedAddress := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
         }
-        
+
         require(deployedAddress != address(0), "CREATE2Factory: deployment failed");
-        
+
         emit ContractDeployed(deployedAddress, salt);
     }
 
@@ -31,15 +31,8 @@ contract CREATE2Factory {
      * @return predictedAddress The predicted address
      */
     function predictAddress(bytes memory bytecode, bytes32 salt) external view returns (address predictedAddress) {
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                bytes1(0xff),
-                address(this),
-                salt,
-                keccak256(bytecode)
-            )
-        );
-        
+        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(bytecode)));
+
         predictedAddress = address(uint160(uint256(hash)));
     }
 

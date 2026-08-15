@@ -2,9 +2,6 @@
 
 > **Consensus-driven treasury infrastructure for autonomous AI agents.**
 
-[![Hedera Agent Kit](https://img.shields.io/badge/Hedera-Agent%20Kit-8259ef)](./HACKATHON.md)
-[![Circle Agent Stack](https://img.shields.io/badge/Circle-Agent%20Stack-1a73e8)](./HACKATHON.md)
-[![Demo Video](https://img.shields.io/badge/Demo-Video-red)](./HACKATHON.md)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue)](./LICENSE)
 
 ## The Problem
@@ -76,23 +73,12 @@ node demo/agent-committee.js
 
 You'll see four agents convene, debate, vote 3/3 to approve, and settle a transaction on-chain. The full session — proposal, votes, confidence scores, transaction hash — is appended to `demo/audit-trail.json`.
 
-## Track Alignment
+## Capabilities
 
-### 🟣 Hedera Agent Kit
-
-- ✅ Agents move value autonomously on **Hedera Testnet** (chain ID 296) via the JSON-RPC relay
-- ✅ Multi-agent negotiation — Research → Risk → Treasury → Executor flow
-- ✅ Public repo + demo video + ≤5-min walkthrough
-- ✅ Settlement is real on-chain HBAR/ERC-20 transfer through the Ethnotary multi-sig
-
-### 🔵 Circle Agent Stack
-
-- ✅ Per-agent capital via **Circle Developer-Controlled Wallets** ([`demo/circle-funder.js`](./demo/circle-funder.js))
-- ✅ Autonomous commerce — agents fund the shared treasury with USDC, then collectively spend
-- ✅ Architecture diagram showing how Circle wallets feed the consensus-controlled treasury
-- ✅ Real USDC settlement on Base Sepolia
-
-→ Full track-by-track judge map: [`HACKATHON.md`](./HACKATHON.md)
+- **Multi-chain settlement** — deploy and operate the same multi-sig on Hedera Testnet (chain ID 296), Sepolia, and Base Sepolia
+- **Multi-agent negotiation** — Research → Risk → Treasury → Executor flow with on-chain threshold approval
+- **On-chain settlement** — real native (HBAR/ETH) and ERC-20 transfers through the Ethnotary multi-sig
+- **Per-agent capital** — optional funding via [Circle Developer-Controlled Wallets](./demo/circle-funder.js), so agents can fund a shared treasury with USDC and collectively spend
 
 ## Example Use Cases
 
@@ -167,6 +153,23 @@ npm --version   # Should show 8.x.x or higher
 # Install globally from npm
 npm install -g ethnotary
 ```
+
+## Environment Setup
+
+Copy the example file and fill in **two required values**:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Required | What to set |
+|----------|----------|-------------|
+| `PRIVATE_KEY` | ✅ | A **testnet** private key (with `0x` prefix) that signs transactions. |
+| `<NETWORK>_RPC_URL` | ✅ | RPC endpoint for your network, e.g. `HEDERA_TESTNET_RPC_URL` or `SEPOLIA_RPC_URL`. |
+
+> Hedera works out of the box via the free public relay. For Sepolia/Base, get a free key from [Infura](https://infura.io) or [Alchemy](https://alchemy.com).
+
+Everything else in `.env.example` is optional. See the file's inline comments for details. **Never commit your `.env`** — it's gitignored.
 
 ## Quick Start
 

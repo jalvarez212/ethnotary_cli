@@ -778,7 +778,7 @@ tx
       // Build notification payload
       const notificationData = buildNotificationPayload({
         transactionId: options.txid,
-        network: globalOpts.network,
+        network: network.key,
         contractAddress: address,
         destination: txData.dest,
         value: ethers.formatEther(txData.value) + ' ETH',

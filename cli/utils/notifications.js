@@ -1,17 +1,21 @@
 const { getContacts } = require('./contacts');
+const { DEFAULT_NETWORKS } = require('./networks');
 
 const DEFAULT_BASE_URL = 'https://ethnotary.io';
 
 /**
- * Generate approval URL for a transaction
+ * Generate approval URL for a transaction.
+ * Uses positional, `?`-delimited params expected by the web app:
+ *   /app/views/txn.html?<txId>?<NetworkName>?<contractAddress>
  * @param {number} txId - Transaction ID
- * @param {string} network - Network name (e.g., 'sepolia')
+ * @param {string} network - Network key (e.g., 'sepolia')
  * @param {string} contractAddress - MultiSig contract address
  * @returns {string} Approval URL
  */
 function generateApprovalUrl(txId, network, contractAddress) {
   const baseUrl = process.env.ETHNOTARY_BASE_URL || DEFAULT_BASE_URL;
-  return `${baseUrl}/app/views/txn.html?txid=${txId}&network=${network}&address=${contractAddress}`;
+  const networkName = DEFAULT_NETWORKS[network]?.name || network;
+  return `${baseUrl}/app/views/txn.html?${txId}?${networkName}?${contractAddress}`;
 }
 
 /**

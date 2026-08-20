@@ -1,6 +1,6 @@
 {
   "name": "ethnotary",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "CLI for managing MultiSig accounts, transactions, and data queries across EVM networks",
   "main": "cli/index.js",
   "bin": {
@@ -54,8 +54,8 @@
     "ai-agent"
   ],
   "overrides": {
-  "underscore": ">=1.13.8"
-},
+    "underscore": ">=1.13.8"
+  },
   "author": "Ethnotary",
   "license": "GPL-3.0"
 }

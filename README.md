@@ -165,6 +165,20 @@ npm --version   # Should show 8.x.x or higher
 npm install -g ethnotary
 ```
 
+## Agent Skills
+
+Ethnotary ships reusable [Agent Skills](https://agentskills.io) that teach a coding agent how to drive the CLI. Install them into your agent with:
+
+```bash
+# All skills
+npx skills add jalvarez212/ethnotary_cli
+
+# A single skill
+npx skills add jalvarez212/ethnotary_cli --skill account-setup
+```
+
+Available skills: `account-setup`, `transaction-management`, `cross-network-operations`, `multisig-approval`. See [`skills/README.md`](./skills/README.md) for details.
+
 ## Environment Setup
 
 Copy the example file and fill in **two required values**:

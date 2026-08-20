@@ -1,3 +1,10 @@
+---
+name: multisig-approval
+description: Request transaction approvals from human co-owners of a MultiSig wallet via WhatsApp or Telegram. Use when an autonomous agent needs human sign-off before executing a transaction on a MultiSig that requires more than one confirmation. Trigger on requests like "request approval for this transfer", "notify the co-owners", or "get human confirmation before executing".
+license: GPL-3.0
+compatibility: claude-code cursor windsurf
+---
+
 # MultiSig Approval Workflow
 
 This skill enables autonomous agents to request transaction approvals from human co-owners of a MultiSig wallet via WhatsApp or Telegram.
@@ -26,6 +33,17 @@ Use this workflow when:
 1. **Ethnotary CLI** installed and configured with wallet
 2. **Owner contacts** registered in the CLI
 3. **OpenClaw WhatsApp/Telegram channel** configured
+
+## Quick Path (bundled script)
+
+To submit a transaction and emit the notification payload (approval URL + per-owner contacts) in one command, use the bundled helper (see `scripts/request-approval.sh`):
+
+```bash
+ALIAS=<ALIAS> DEST=<DESTINATION_ADDRESS> VALUE=<ETH_AMOUNT> NETWORK=<NETWORK> \
+  ./scripts/request-approval.sh
+```
+
+Then message each owner in `notifyOwners[]` (Step 2 below). For manual control, follow the workflow.
 
 ## Workflow Steps
 

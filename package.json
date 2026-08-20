@@ -1,6 +1,6 @@
 {
   "name": "ethnotary",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "CLI for managing MultiSig accounts, transactions, and data queries across EVM networks",
   "main": "cli/index.js",
   "bin": {

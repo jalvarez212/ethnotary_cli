@@ -159,5 +159,74 @@
       "transactionId": 2
     },
     "status": "executed"
+  },
+  {
+    "sessionId": "session-1787179528034",
+    "startedAt": "2026-08-19T22:45:28.034Z",
+    "finishedAt": "2026-08-19T22:45:44.860Z",
+    "network": "hedera-testnet",
+    "multisig": {
+      "alias": "joy",
+      "address": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D"
+    },
+    "proposal": {
+      "title": "Polymarket arbitrage opportunity",
+      "amountUsdc": 25,
+      "expectedValuePct": 12,
+      "rationale": "Detected mispricing on Polymarket arbitrage opportunity. Modeled EV +12% vs market consensus over 200 comparable resolutions."
+    },
+    "decisions": [
+      {
+        "agent": "research",
+        "action": "propose",
+        "proposal": {
+          "title": "Polymarket arbitrage opportunity",
+          "amountUsdc": 25,
+          "expectedValuePct": 12,
+          "rationale": "Detected mispricing on Polymarket arbitrage opportunity. Modeled EV +12% vs market consensus over 200 comparable resolutions."
+        }
+      },
+      {
+        "agent": "risk",
+        "decision": "approve",
+        "confidence": 0.78,
+        "reasoning": "Position sizing within 0.5% of treasury. Drawdown bounded at 25 USDC. Confidence 78% > 60% threshold."
+      },
+      {
+        "agent": "treasury",
+        "decision": "approve",
+        "reasoning": "Allocation budget available. 25 USDC < daily cap. No conflicting positions open."
+      },
+      {
+        "agent": "executor",
+        "action": "submit",
+        "multisig": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "network": "hedera-testnet",
+        "transactionId": 3,
+        "destination": "0xa3582258f64ccb0109122583cc5db01b9831f44d",
+        "value": "0.001 ETH",
+        "txHash": "0x5a28c325ba4156cbbf453fecc6ac6c7a54694d66744fa348074ebc875d0043c0",
+        "status": "submitted",
+        "confirmations": "1/1",
+        "canExecute": true,
+        "approvalUrl": "https://ethnotary.io/app/views/txn.html?3?Hedera Testnet?0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "notifyOwners": []
+      },
+      {
+        "agent": "executor",
+        "action": "execute",
+        "multisig": "0x5F705324Ec8472192c5d48252212ea08B7e9E72D",
+        "transactionId": 3,
+        "txHash": "0xe13f0f6bba0f9eef75229c5846d2f695f429fcf886d8a9ccd22b7f55fef92eac",
+        "status": "executed"
+      }
+    ],
+    "circleFunding": null,
+    "onChain": {
+      "submitTxHash": "0x5a28c325ba4156cbbf453fecc6ac6c7a54694d66744fa348074ebc875d0043c0",
+      "executeTxHash": "0xe13f0f6bba0f9eef75229c5846d2f695f429fcf886d8a9ccd22b7f55fef92eac",
+      "transactionId": 3
+    },
+    "status": "executed"
   }
 ]

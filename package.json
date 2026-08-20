@@ -53,6 +53,9 @@
     "evm",
     "ai-agent"
   ],
+  "overrides": {
+  "underscore": ">=1.13.8"
+},
   "author": "Ethnotary",
   "license": "GPL-3.0"
 }
